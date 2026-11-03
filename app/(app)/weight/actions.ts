@@ -38,6 +38,7 @@ export async function saveWeighIn(input: unknown): Promise<ActionResult> {
     else await tx.insert(weighIn).values({ date, weightKg })
   })
   revalidatePath("/weight")
+  revalidatePath("/food")
   return { ok: true }
 }
 
@@ -45,5 +46,6 @@ export async function deleteWeighIn(id: number): Promise<ActionResult> {
   await requireSession()
   await db.delete(weighIn).where(eq(weighIn.id, id))
   revalidatePath("/weight")
+  revalidatePath("/food")
   return { ok: true }
 }

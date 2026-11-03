@@ -46,6 +46,11 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 
 ## Food tab
 
+### Weight trend
+
+- A compact version of the weight chart (72 px tall) always sits in a card across the top of the tab, showing the last 14 days: the line, a dot per weigh-in, the hollow latest marker and both axes' labels (fewer of them than the full chart), with the y-scale ending on the ticks around the data so the plot sits tight against the date labels. It has no goal or projection lines, so the recent trend fills the height. Clicking or tapping it opens the Weight tab.
+- If there is an entry from before the 14 days, the line comes in from the left edge heading toward the first entry inside them.
+
 ### Source
 
 - The source of truth is the public GitHub repo `jackcasstlesjones/claude-recipes`: one JSON file per recipe.
@@ -123,7 +128,7 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 - `/login` — email + password.
 - `/` → redirects to `/food`.
 - `/weight` — chart + entries list (side by side on wide screens), record button, Export.
-- `/food` — Today card, searchable, sortable recipe list with +/− counters. `/food/[slug]` — recipe detail. `/food/today` — today's items (the mobile bar opens it). `/food/history` — past days.
+- `/food` — weight trend, Today card, searchable, sortable recipe list with +/− counters. `/food/[slug]` — recipe detail. `/food/today` — today's items (the mobile bar opens it). `/food/history` — past days.
 - `/account` — Settings (from the header): goal, daily calorie limit, change password.
 - `/api/auth/*` — Better Auth. `/api/health` — DB ping.
 
