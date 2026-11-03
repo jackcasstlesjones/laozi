@@ -1,0 +1,76 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "93ef515b-2cc0-4b61-b3c4-60cc85dc1d20",
+  "prevIds": [
+    "965287a6-0bd8-4749-a028-705c1f0da5a1"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "goal_settings",
+        "daily_kcal_limit"
+      ],
+      "writes": [
+        "s|col|public.goal_settings.daily_kcal_limit",
+        "n|col|public.goal_settings.daily_kcal_limit",
+        "e|col|public.goal_settings.daily_kcal_limit"
+      ],
+      "reads": [
+        "n|tbl|public.goal_settings",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "goal_settings"
+      ],
+      "writes": [
+        "s|ck|public.goal_settings.goal_settings_kcal_limit_range",
+        "n|ck|public.goal_settings.goal_settings_kcal_limit_range",
+        "e|ck|public.goal_settings.goal_settings_kcal_limit_range",
+        "n|con|public.goal_settings.goal_settings_kcal_limit_range"
+      ],
+      "reads": [
+        "n|tbl|public.goal_settings",
+        "n|sch|public",
+        "n|col|public.goal_settings.daily_kcal_limit"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "goal_settings",
+        "name": "daily_kcal_limit",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "goal_settings",
+        "name": "goal_settings_kcal_limit_range",
+        "value": "\"daily_kcal_limit\" is null or \"daily_kcal_limit\" between 500 and 10000",
+        "entityType": "checks"
+      }
+    }
+  ]
+}

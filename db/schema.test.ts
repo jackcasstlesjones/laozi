@@ -41,6 +41,16 @@ describe("goal_settings constraints", () => {
       ctx.db.insert(goalSettings).values({ id: 2 })
     ).rejects.toThrow()
   })
+  it("limits the daily kcal limit to 500–10,000 or null", async () => {
+    await ctx.db.update(goalSettings).set({ dailyKcalLimit: 2000 })
+    await ctx.db.update(goalSettings).set({ dailyKcalLimit: null })
+    await expect(
+      ctx.db.update(goalSettings).set({ dailyKcalLimit: 499 })
+    ).rejects.toThrow()
+    await expect(
+      ctx.db.update(goalSettings).set({ dailyKcalLimit: 10001 })
+    ).rejects.toThrow()
+  })
   it("defaults the rate to 0.5 kg/week", async () => {
     const [row] = await ctx.db.select().from(goalSettings)
     expect(row.rateKgPerWeek).toBe(0.5)

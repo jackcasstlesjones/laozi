@@ -116,7 +116,7 @@ export const weighIn = pgTable(
   (t) => [check("weigh_in_weight_range", sql`${t.weightKg} between 30 and 300`)]
 )
 
-/** Exactly one row (id = 1). goal_kg null means no goal set. */
+/** User settings: exactly one row (id = 1). goal_kg null means no goal set. */
 export const goalSettings = pgTable(
   "goal_settings",
   {
@@ -129,10 +129,16 @@ export const goalSettings = pgTable(
     })
       .notNull()
       .default(0.5),
+    /** Daily calorie limit for the Food tab; null means no limit. */
+    dailyKcalLimit: integer("daily_kcal_limit"),
     ...timestamps,
   },
   (t) => [
     check("goal_settings_singleton", sql`${t.id} = 1`),
+    check(
+      "goal_settings_kcal_limit_range",
+      sql`${t.dailyKcalLimit} is null or ${t.dailyKcalLimit} between 500 and 10000`
+    ),
     check(
       "goal_settings_goal_range",
       sql`${t.goalKg} is null or ${t.goalKg} between 30 and 300`

@@ -1,0 +1,2 @@
+ALTER TABLE "goal_settings" ADD COLUMN "daily_kcal_limit" integer;--> statement-breakpoint
+ALTER TABLE "goal_settings" ADD CONSTRAINT "goal_settings_kcal_limit_range" CHECK ("daily_kcal_limit" is null or "daily_kcal_limit" between 500 and 10000);
