@@ -14,7 +14,8 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - One entry per date. Recording a weight on a date that already has one replaces it, after a confirmation.
 - The date defaults to today. Future dates are not allowed.
 - The weight must be between 30 and 300 kg. Otherwise show "Enter a weight between 30 and 300 kg".
-- Entries are listed newest first, showing the date (e.g. "Tue, Nov 3, 2026") and the weight (e.g. "85.6 kg").
+- Entries are listed newest first, showing the date (e.g. "Tue, Nov 3, 2026") and the weight (e.g. "85.5 kg").
+- **Display rounding:** weights are stored to one decimal place, but everywhere the UI shows a weight (list, chart tooltip and axis, goal label) it is rounded to the nearest 0.25 kg and shown with at least one decimal: "86.0 kg", "85.5 kg", "85.75 kg". A stored 85.6 shows as "85.5 kg".
 - Each entry can be edited or deleted. Deleting asks for confirmation.
 
 ### Chart
@@ -140,6 +141,8 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - 2026-11-03: Kept the existing shadcn scaffold at the repo root instead of `src/`.
 - 2026-11-03: Drizzle pinned to `1.0.0-rc.5` for `drizzle-orm/zod`; Better Auth 1.7 supports it.
 - 2026-11-03: Weights stored as `numeric(4,1)` read as JS numbers; dates as `date` strings (`YYYY-MM-DD`), "today" is the user's local date sent from the browser.
+- 2026-11-03: Weights display rounded to the nearest 0.25 kg (Jack's request); storage stays at one decimal, so nothing is lost. The markdown export uses the stored values.
+- 2026-11-03: Rows marked `Deleted=true` in the Lose It export are not imported; the import reports them alongside the skipped rows.
 - 2026-11-03: Single-user app: app tables have no `user_id`.
 - 2026-11-03: No Cache Components; recipes use `unstable_cache`/fetch revalidate (300 s).
 - 2026-11-03: Local Postgres on port 5442 (`laozi` and `laozi_test` databases).
