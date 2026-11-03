@@ -3,7 +3,7 @@
 ## Where we are
 
 - **2026-11-03:** M0 done. Live at https://laoziloss.vercel.app (API only so far; the home page is still the scaffold). Next: M1 shell + login.
-- **Open questions for Jack:** where the Lose It CSV export lives (needed for M4); go-ahead to migrate the `claude-recipes` repo files to the new schema (M5).
+- **Open questions for Jack:** approval to run the Lose It import against production; go-ahead to migrate the `claude-recipes` repo files to the new schema (M5).
 
 ## M0 Foundations
 
@@ -32,8 +32,9 @@
 
 ## M4 Lose It import
 
-- [ ] Pure CSV parser (lb→kg, last row per date wins, unreadable row numbers) — tested
-- [ ] `pnpm import:loseit <file>` script: skips existing dates, reports imported/skipped/unreadable; run once against production with approval
+- [x] Pure CSV parser (lb→kg, last row per date wins, deleted rows ignored, unreadable row numbers) — tested
+- [x] `pnpm import:loseit <file>` script: skips existing dates, reports imported/skipped/unreadable (local run: 157 imported, 4 deleted rows ignored)
+- [ ] Run the import once against production (needs Jack's approval)
 
 ## M5 Food
 
