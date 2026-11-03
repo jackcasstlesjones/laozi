@@ -2,7 +2,7 @@
 
 ## Where we are
 
-- **2026-11-03:** M0 done. Live at https://laozi-bay.vercel.app (API only so far; the home page is still the scaffold). Next: M1 shell + login.
+- **2026-11-03:** M0 done. Live at https://laoziloss.vercel.app (API only so far; the home page is still the scaffold). Next: M1 shell + login.
 - **Open questions for Jack:** where the Lose It CSV export lives (needed for M4); go-ahead to migrate the `claude-recipes` repo files to the new schema (M5).
 
 ## M0 Foundations
