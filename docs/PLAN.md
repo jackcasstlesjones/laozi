@@ -46,6 +46,7 @@
 
 - [x] `food_log` table + constraint tests; local-date and day-summary logic — tested
 - [x] +/− per recipe, Today card with total and custom items
+- [x] Settings page holds Goal + daily calorie limit; total bar shows total / limit with a progress bar
 - [x] History page (on branch `feat/calorie-counting`, awaiting Jack's local test)
 
 ## M6 Account and polish

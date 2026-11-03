@@ -39,7 +39,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 
 ### Goal settings
 
-- Goal weight (kg) and target rate (kg per week, default 0.5).
+- Set on the Settings page (from the header), not the Weight tab: goal weight (kg) and target rate (kg per week, default 0.5).
 - With no goal set, there is no goal line or projection line.
 
 ## Food tab
@@ -80,6 +80,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - **Desktop (768 px and up):** Today sits in a column to the right of the recipe list and stays in view while scrolling: the amber total bar (`--chart-2`; "Today · 3 items · 880 kcal"), then today's items ("2 × Assorted Gyozas · 80 kcal"), each removable, the custom-item form and a History link.
 - **Mobile (under 768 px):** the same amber total bar floats at the bottom of the screen ("Today · 3 items · 880 kcal"). Tapping it opens the Today screen (`/food/today`) with the items, the remove buttons and the custom-item form. The recipe list has bottom padding so the bar never covers it.
 - **Custom items:** a name and kcal (whole number, 1–10,000), e.g. "Sausage and mash, 800". They are saved against today only and never become recipes.
+- With a daily calorie limit set, the total bar reads "880 / 2,000 kcal" and has a horizontal progress bar (no animation). Over the limit the bar is full and red, and "120 kcal over" replaces the item count. Without a limit it shows the total only.
 - "Today" is the calendar date in the browser's time zone. At midnight the total starts again from 0; the previous day's entries stay as that day's record. No background job is involved.
 - Each entry stores the name and kcal per serving at the time it was added, so editing or deleting a recipe later doesn't change history.
 - **History** (`/food/history`): every day with entries, newest first, with its total and items. Read-only.
@@ -108,7 +109,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - Single user. Log in with email and password. There is no sign-up page: the one account is created at deploy time.
 - Wrong email or password shows "Incorrect email or password". It doesn't reveal which one was wrong.
 - There is no forgot-password or reset-by-email flow.
-- Account settings has only: change password (current password, new password with a minimum of 12 characters, confirm new password). Changing the password logs out every other session.
+- The Settings page (`/account`, from the header) has: **Goal** (see Goal settings), **Daily calorie limit** (whole kcal, 500–10,000; empty for none), and **Change password** (current password, new password with a minimum of 12 characters, confirm new password). Changing the password logs out every other session.
 - Sessions last 30 days.
 
 ## Non-goals (v1)
@@ -119,9 +120,9 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 
 - `/login` — email + password.
 - `/` → redirects to `/weight`.
-- `/weight` — chart + entries list (side by side on wide screens), record button, goal settings, Export.
+- `/weight` — chart + entries list (side by side on wide screens), record button, Export.
 - `/food` — Today card, searchable, sortable recipe list with +/− counters. `/food/[slug]` — recipe detail. `/food/today` — today's items (the mobile bar opens it). `/food/history` — past days.
-- `/account` — change password (from the header).
+- `/account` — Settings (from the header): goal, daily calorie limit, change password.
 - `/api/auth/*` — Better Auth. `/api/health` — DB ping.
 
 ## Design system
@@ -135,7 +136,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 
 - **Stack:** Next.js 16.4 (App Router, Turbopack, no Cache Components), React 19.3, TypeScript strict, pnpm. Postgres 17 (Docker locally, Neon in production) via Drizzle ORM **1.0.0-rc.5 (pinned)** + `pg`. Zod 4 with `drizzle-orm/zod`. Better Auth 1.7. Vitest.
 - **Layout (no `src/`):** `app/` routes; `components/` (`ui/` = shadcn); `lib/` (env, auth, domain logic); `db/` (schema, relations, client, migrations); `scripts/` (seed, gates, import); `tests/` helpers.
-- **Data model:** `weigh_in(id, date unique, weight_kg numeric(4,1) check 30–300)`; `goal_settings` singleton (`id = 1`, `goal_kg` nullable, `rate_kg_per_week` default 0.5); `food_log(id, date, recipe_slug nullable, name, kcal per serving, quantity ≥ 1)`, unique on `(date, recipe_slug)` for recipe rows; Better Auth `user`, `session`, `account`, `verification`, `rate_limit`.
+- **Data model:** `weigh_in(id, date unique, weight_kg numeric(4,1) check 30–300)`; `goal_settings` singleton (`id = 1`, `goal_kg` nullable, `rate_kg_per_week` default 0.5, `daily_kcal_limit` nullable 500–10,000); `food_log(id, date, recipe_slug nullable, name, kcal per serving, quantity ≥ 1)`, unique on `(date, recipe_slug)` for recipe rows; Better Auth `user`, `session`, `account`, `verification`, `rate_limit`.
 - **Auth:** Better Auth email/password, sign-up disabled, min password 12, 30-day database sessions, database rate limiting. The account is created by the seed from `ADMIN_EMAIL`/`ADMIN_PASSWORD` only if it doesn't exist.
 - **Recipes:** fetched server-side from GitHub (contents API listing + raw downloads), cached with a 300 s revalidate; validated per file with Zod.
 - **Env vars:** `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED` (migrations/seed), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (production only), `ADMIN_EMAIL`, `ADMIN_PASSWORD`; locally also `TEST_DATABASE_URL`.
