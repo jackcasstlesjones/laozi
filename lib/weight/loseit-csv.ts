@@ -111,6 +111,23 @@ export function parseLoseItCsv(text: string): LoseItParseResult {
   return result
 }
 
+/**
+ * Entries to restore after weights moved from 0.1 kg to 0.05 kg precision: an
+ * existing value within 0.05 kg of the CSV is the old rounding of that row.
+ * Anything further away was edited in the app, so it is left alone.
+ */
+export function planRefresh(
+  entries: ParsedWeighIn[],
+  existing: ParsedWeighIn[]
+) {
+  const current = new Map(existing.map((e) => [e.date, e.weightKg]))
+  return entries.filter((e) => {
+    const stored = current.get(e.date)
+    if (stored === undefined || stored === e.weightKg) return false
+    return Math.abs(stored - e.weightKg) < 0.051
+  })
+}
+
 export function planImport(
   entries: ParsedWeighIn[],
   existingDates: Set<string>

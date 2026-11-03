@@ -2,20 +2,21 @@
  * One-off import of Lose It's weight CSV export.
  *   pnpm import:loseit <file.csv>                 → local database
  *   pnpm import:loseit <file.csv> --production   → required for any non-local database
+ *   pnpm import:loseit <file.csv> --refresh      → also restore 0.05 kg precision on existing rows
  */
 import { readFileSync } from "node:fs"
-import { inArray } from "drizzle-orm"
+import { eq, inArray } from "drizzle-orm"
 import { drizzle } from "drizzle-orm/node-postgres"
 import { Pool } from "pg"
 
 import { normaliseDatabaseUrl } from "../db/url"
 import { weighIn } from "../db/schema"
-import { parseLoseItCsv, planImport } from "../lib/weight/loseit-csv"
+import { parseLoseItCsv, planImport, planRefresh } from "../lib/weight/loseit-csv"
 
 const args = process.argv.slice(2)
 const file = args.find((a) => !a.startsWith("--"))
 if (!file)
-  throw new Error("usage: pnpm import:loseit <file.csv> [--production]")
+  throw new Error("usage: pnpm import:loseit <file.csv> [--production] [--refresh]")
 
 const url = process.env.DATABASE_URL_UNPOOLED
 if (!url) throw new Error("DATABASE_URL_UNPOOLED is not set")
@@ -35,7 +36,7 @@ async function main() {
   const dates = parsed.entries.map((e) => e.date)
   const existing = dates.length
     ? await db
-        .select({ date: weighIn.date })
+        .select({ date: weighIn.date, weightKg: weighIn.weightKg })
         .from(weighIn)
         .where(inArray(weighIn.date, dates))
     : []
@@ -47,8 +48,17 @@ async function main() {
       .onConflictDoNothing({ target: weighIn.date })
   }
 
+  const toRefresh = args.includes("--refresh")
+    ? planRefresh(parsed.entries, existing)
+    : []
+  await db.transaction(async (tx) => {
+    for (const { date, weightKg } of toRefresh)
+      await tx.update(weighIn).set({ weightKg }).where(eq(weighIn.date, date))
+  })
+
   console.log(`target: ${isLocal ? "local" : host}`)
   console.log(`imported: ${plan.toInsert.length}`)
+  if (args.includes("--refresh")) console.log(`refreshed: ${toRefresh.length}`)
   console.log(`skipped (date already had an entry): ${plan.skippedExisting}`)
   console.log(
     `skipped (deleted in Lose It): ${parsed.deletedRows.length}${parsed.deletedRows.length ? ` (rows ${parsed.deletedRows.join(", ")})` : ""}`

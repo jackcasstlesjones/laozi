@@ -1,21 +1,23 @@
 import { describe, expect, it } from "vitest"
 
-import { parseLoseItCsv, planImport } from "./loseit-csv"
+import { parseLoseItCsv, planImport, planRefresh } from "./loseit-csv"
 
 const HEADER = "Date,Weight,Last Updated,Deleted"
 
 describe("parseLoseItCsv", () => {
-  it("reads MM/DD/YYYY dates and rounds kg to one decimal", () => {
+  it("reads MM/DD/YYYY dates and rounds kg to the nearest 0.05", () => {
     const r = parseLoseItCsv(
       [
         HEADER,
         "11/03/2026,85.60013769692,2026-11-03T05:15:14-0700,false",
         "10/10/2023,86.39982104523001,x,false",
+        "10/11/2023,86.34977,x,false",
       ].join("\n")
     )
     expect(r.entries).toEqual([
       { date: "2026-11-03", weightKg: 85.6 },
       { date: "2023-10-10", weightKg: 86.4 },
+      { date: "2023-10-11", weightKg: 86.35 },
     ])
     expect(r.unreadableRows).toEqual([])
   })
@@ -85,5 +87,24 @@ describe("planImport", () => {
     )
     expect(plan.toInsert).toEqual([{ date: "2026-11-02", weightKg: 85.9 }])
     expect(plan.skippedExisting).toBe(1)
+  })
+})
+
+describe("planRefresh", () => {
+  const csv = [
+    { date: "2026-01-01", weightKg: 85.65 },
+    { date: "2026-01-02", weightKg: 85.65 },
+    { date: "2026-01-03", weightKg: 85.6 },
+    { date: "2026-01-04", weightKg: 85.65 },
+    { date: "2026-01-05", weightKg: 85.65 },
+  ]
+  it("restores old roundings only, leaving app edits and new dates alone", () => {
+    const plan = planRefresh(csv, [
+      { date: "2026-01-01", weightKg: 85.7 }, // rounded up
+      { date: "2026-01-02", weightKg: 85.6 }, // rounded down
+      { date: "2026-01-03", weightKg: 85.6 }, // already right
+      { date: "2026-01-04", weightKg: 90 }, // edited in the app
+    ])
+    expect(plan.map((e) => e.date)).toEqual(["2026-01-01", "2026-01-02"])
   })
 })
