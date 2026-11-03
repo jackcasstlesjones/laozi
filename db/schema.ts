@@ -107,8 +107,8 @@ export const weighIn = pgTable(
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     date: date("date", { mode: "string" }).notNull().unique(),
     weightKg: numeric("weight_kg", {
-      precision: 4,
-      scale: 1,
+      precision: 5,
+      scale: 2,
       mode: "number",
     }).notNull(),
     ...timestamps,
@@ -121,7 +121,7 @@ export const goalSettings = pgTable(
   "goal_settings",
   {
     id: integer("id").primaryKey().default(1),
-    goalKg: numeric("goal_kg", { precision: 4, scale: 1, mode: "number" }),
+    goalKg: numeric("goal_kg", { precision: 5, scale: 2, mode: "number" }),
     rateKgPerWeek: numeric("rate_kg_per_week", {
       precision: 3,
       scale: 2,

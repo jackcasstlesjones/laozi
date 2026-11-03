@@ -1,0 +1,2 @@
+ALTER TABLE "goal_settings" ALTER COLUMN "goal_kg" SET DATA TYPE numeric(5,2) USING "goal_kg"::numeric(5,2);--> statement-breakpoint
+ALTER TABLE "weigh_in" ALTER COLUMN "weight_kg" SET DATA TYPE numeric(5,2) USING "weight_kg"::numeric(5,2);

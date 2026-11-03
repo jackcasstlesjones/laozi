@@ -1,0 +1,65 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "ebb1957e-94f7-41b3-b6e3-ba2b40a72014",
+  "prevIds": [
+    "93ef515b-2cc0-4b61-b3c4-60cc85dc1d20"
+  ],
+  "footprints": [
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "goal_settings",
+        "goal_kg"
+      ],
+      "writes": [
+        "s|colprop|public.goal_settings.goal_kg.type",
+        "s|colprop|public.goal_settings.goal_kg.default"
+      ],
+      "reads": [
+        "n|tbl|public.goal_settings",
+        "n|sch|public",
+        "n|col|public.goal_settings.goal_kg"
+      ],
+      "sqlHash": "5ceca50e7df68077"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "weigh_in",
+        "weight_kg"
+      ],
+      "writes": [
+        "s|colprop|public.weigh_in.weight_kg.type",
+        "s|colprop|public.weigh_in.weight_kg.default"
+      ],
+      "reads": [
+        "n|tbl|public.weigh_in",
+        "n|sch|public",
+        "n|col|public.weigh_in.weight_kg"
+      ],
+      "sqlHash": "dba4eb48aa78d64c"
+    }
+  ],
+  "deltas": [
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"goal_settings\",\"goal_kg\"]",
+      "set": {
+        "type": "numeric(5,2)"
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"weigh_in\",\"weight_kg\"]",
+      "set": {
+        "type": "numeric(5,2)"
+      }
+    }
+  ]
+}

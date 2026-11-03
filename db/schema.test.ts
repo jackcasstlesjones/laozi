@@ -25,12 +25,12 @@ describe("weigh_in constraints", () => {
     ).rejects.toThrow()
     await ctx.db.insert(weighIn).values({ date: "2026-11-02", weightKg: 300 })
   })
-  it("stores one decimal place", async () => {
+  it("stores two decimal places", async () => {
     const [row] = await ctx.db
       .insert(weighIn)
       .values({ date: "2026-11-03", weightKg: 85.64 })
       .returning()
-    expect(row.weightKg).toBe(85.6)
+    expect(row.weightKg).toBe(85.64)
   })
 })
 
