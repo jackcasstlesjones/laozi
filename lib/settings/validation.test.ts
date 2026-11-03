@@ -12,7 +12,7 @@ describe("goalInput", () => {
   it("rounds the goal and validates the rate", () => {
     expect(
       goalInput.parse({ goalKg: "80.04", rateKgPerWeek: "0.5" }).goalKg
-    ).toBe(80)
+    ).toBe(80.05)
     expect(goalInput.safeParse({ goalKg: 80, rateKgPerWeek: 0 }).success).toBe(
       false
     )

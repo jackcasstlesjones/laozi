@@ -116,7 +116,7 @@ export function WeighInDialog({
                 id="weigh-in-kg"
                 type="number"
                 inputMode="decimal"
-                step="0.1"
+                step="0.05"
                 placeholder="85.6"
                 value={weight}
                 autoFocus

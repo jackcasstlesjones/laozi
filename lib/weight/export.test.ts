@@ -7,7 +7,7 @@ describe("buildExportMarkdown", () => {
     const md = buildExportMarkdown(
       [
         { date: "2026-11-02", weightKg: 86 },
-        { date: "2026-11-03", weightKg: 85.6 },
+        { date: "2026-11-03", weightKg: 85.65 },
       ],
       { goalKg: 80, rateKgPerWeek: 0.5 }
     )
@@ -15,10 +15,10 @@ describe("buildExportMarkdown", () => {
       [
         "# Weight log (kg)",
         "Goal: 80.0 (0.5 kg/week)",
-        "Latest: 2026-11-03 85.6",
+        "Latest: 2026-11-03 85.65",
         "| Date | kg |",
         "|---|---|",
-        "| 2026-11-03 | 85.6 |",
+        "| 2026-11-03 | 85.65 |",
         "| 2026-11-02 | 86.0 |",
         "",
       ].join("\n")

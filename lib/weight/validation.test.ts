@@ -5,9 +5,9 @@ import { weighInInput, WEIGHT_RANGE_MESSAGE } from "./validation"
 const base = { date: "2026-11-03", today: "2026-11-03" }
 
 describe("weighInInput", () => {
-  it("accepts and rounds to one decimal", () => {
+  it("accepts and rounds to the nearest 0.05", () => {
     const r = weighInInput.parse({ ...base, weightKg: "85.64" })
-    expect(r.weightKg).toBe(85.6)
+    expect(r.weightKg).toBe(85.65)
     expect(r.replace).toBe(false)
   })
   it.each(["29.9", "300.1", "abc", ""])(

@@ -6,7 +6,7 @@ import { MAX_KG, MIN_KG, roundKg } from "./kg"
 
 export const WEIGHT_RANGE_MESSAGE = `Enter a weight between ${MIN_KG} and ${MAX_KG} kg`
 
-/** kg as typed by the user: coerced, rounded to 1 dp, 30–300. */
+/** kg as typed by the user: coerced, rounded to the nearest 0.05, 30–300. */
 export const kg = z.coerce
   .number({ error: WEIGHT_RANGE_MESSAGE })
   .transform(roundKg)

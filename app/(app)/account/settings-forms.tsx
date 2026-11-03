@@ -79,7 +79,7 @@ export function GoalForm({ settings }: { settings: Settings }) {
       <Field
         id="goalKg"
         label="Goal weight (kg)"
-        step="0.1"
+        step="0.05"
         defaultValue={settings.goalKg ?? ""}
         hint="Leave empty to hide the goal and projection lines."
       />

@@ -1,14 +1,15 @@
 import type { Entry } from "./chart"
+import { formatKg } from "./kg"
 
 export type ExportGoal = { goalKg: number | null; rateKgPerWeek: number }
 
-/** Markdown for pasting into an LLM chat. Uses stored values (1 dp), newest first. */
+/** Markdown for pasting into an LLM chat. Newest first. */
 export function buildExportMarkdown(
   entries: Entry[],
   goal: ExportGoal
 ): string {
   const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date))
-  const kg = (n: number) => n.toFixed(1)
+  const kg = formatKg
   const lines = [
     "# Weight log (kg)",
     goal.goalKg === null
