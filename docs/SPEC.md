@@ -78,7 +78,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 
 - Each recipe row in the list has − and + buttons with today's count between them. + adds one serving to today; − removes one (not below zero).
 - A **Today** card at the top of the Food tab shows today's total kcal and today's items ("2 × Assorted Gyozas · 80 kcal"), each removable.
-- **Mobile (under 768 px):** instead of the card, a total bar (orange-to-yellow gradient) floats at the bottom of the screen ("Today · 3 items · 880 kcal"). Tapping it opens the Today screen (`/food/today`) with the items, the remove buttons and the custom-item form. The recipe list has bottom padding so the bar never covers it.
+- **Mobile (under 768 px):** instead of the card, a solid yellow total bar floats at the bottom of the screen ("Today · 3 items · 880 kcal"). Tapping it opens the Today screen (`/food/today`) with the items, the remove buttons and the custom-item form. The recipe list has bottom padding so the bar never covers it.
 - **Custom items:** a name and kcal (whole number, 1–10,000), e.g. "Sausage and mash, 800". They are saved against today only and never become recipes.
 - "Today" is the calendar date in the browser's time zone. At midnight the total starts again from 0; the previous day's entries stay as that day's record. No background job is involved.
 - Each entry stores the name and kcal per serving at the time it was added, so editing or deleting a recipe later doesn't change history.
@@ -129,7 +129,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - shadcn/ui `base-nova` style on Base UI, Tailwind 4 `@theme` tokens in `app/globals.css` (Jack's theme, neutral base; `--primary` and `--accent` are amber-orange `oklch(0.76 0.17 62)` with dark-brown text on it, changed from the original burnt orange on 2026-11-03 at Jack's request). Light/dark follow the system (`next-themes`, `defaultTheme="system"`).
 - Type: Inter (`--font-sans`), Geist Mono (`--font-mono`) for numbers in tables where alignment matters.
 - Chart colours from tokens only: line `--primary`, goal and projection lines `--muted-foreground`, dashed.
-- Banned: hard-coded colours outside `globals.css`, a second component library, and styling the same thing twice (extend `components/ui` instead).
+- Banned: gradients; hard-coded colours outside `globals.css` (exception: the yellow mobile total bar uses Tailwind `yellow-300`), a second component library, and styling the same thing twice (extend `components/ui` instead).
 
 ## Technical architecture
 

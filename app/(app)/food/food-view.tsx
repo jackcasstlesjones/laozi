@@ -75,7 +75,7 @@ export function FoodView({
       <div className="fixed inset-x-0 bottom-0 z-20 px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden">
         <Link
           href="/food/today"
-          className="mx-auto flex h-14 max-w-2xl items-center gap-3 rounded-2xl bg-linear-to-r from-primary to-yellow-300 px-4 text-primary-foreground shadow-lg transition-transform active:scale-[0.98]"
+          className="mx-auto flex h-14 max-w-2xl items-center gap-3 rounded-2xl bg-yellow-300 px-4 text-primary-foreground shadow-lg transition-transform active:scale-[0.98]"
         >
           <span className="font-medium">Today</span>
           <span className="text-sm opacity-80">
