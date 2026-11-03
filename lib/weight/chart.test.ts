@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest"
 
 import {
   buildChart,
+  crossfadeTicks,
+  ease,
   goalDay,
+  lerpView,
   nearestPoint,
   projectionLine,
+  sameView,
   windowFor,
   xTicks,
   yScale,
@@ -108,14 +112,14 @@ describe("xTicks", () => {
 })
 
 describe("buildChart", () => {
-  it("draws the line through the previous entry so it enters from the edge", () => {
+  it("keeps every entry for the line but only the window's as visible", () => {
     const c = buildChart(entries, goal, "1M", today)
     expect(c.visible.map((p) => p.kg)).toEqual([86.4, 85.6])
-    expect(c.line.map((p) => p.kg)).toEqual([92.2, 86.4, 85.6])
+    expect(c.points.map((p) => p.kg)).toEqual([92.2, 86.4, 85.6])
     expect(c.latest?.kg).toBe(85.6)
     expect(c.goalKg).toBe(80)
   })
-  it("has a single point and no projection without a goal", () => {
+  it("has a single point and no goal without one set", () => {
     const c = buildChart(
       [{ date: "2026-11-03", weightKg: 85.6 }],
       null,
@@ -123,13 +127,73 @@ describe("buildChart", () => {
       today
     )
     expect(c.visible).toHaveLength(1)
-    expect(c.projection).toBeNull()
     expect(c.goalKg).toBeNull()
   })
   it("handles no entries", () => {
     const c = buildChart([], null, "6M", today)
     expect(c.visible).toEqual([])
     expect(c.latest).toBeNull()
+  })
+})
+
+describe("the Food tab's 2W range", () => {
+  it("covers 14 days with nothing added for the future without a goal", () => {
+    const c = buildChart(entries, null, "2W", today)
+    expect(c.start).toBe(today - 14)
+    expect(c.end).toBe(today)
+    expect(c.visible.map((p) => p.kg)).toEqual([86.4, 85.6])
+  })
+  it("uses fewer x ticks when asked", () => {
+    const c = buildChart(entries, null, "2W", today, { maxXTicks: 3 })
+    expect(c.xTicks.map((t) => t.label)).toEqual(["Oct 20", "Oct 25", "Oct 30"])
+  })
+  it("can end the y domain on the ticks around the values", () => {
+    expect(yScale([85.6, 85.65], 3, true)).toEqual({
+      domain: [85.5, 86],
+      ticks: [85.5, 86],
+    })
+  })
+  it("keeps a usable y domain when snapped values sit on one tick", () => {
+    expect(yScale([85.5], 3, true).domain).toEqual([85.5, 86])
+  })
+  it("uses fewer y ticks when asked", () => {
+    expect(yScale([80, 90], 3).ticks).toEqual([80, 85, 90])
+  })
+})
+
+describe("range animation", () => {
+  const from = { start: 0, end: 10, yMin: 80, yMax: 90 }
+  const to = { start: 10, end: 30, yMin: 84, yMax: 86 }
+
+  it("moves the scales from one view to the other", () => {
+    expect(lerpView(from, to, 0)).toEqual(from)
+    expect(lerpView(from, to, 1)).toEqual(to)
+    expect(lerpView(from, to, 0.5)).toEqual({
+      start: 5,
+      end: 20,
+      yMin: 82,
+      yMax: 88,
+    })
+  })
+  it("compares views by value", () => {
+    expect(sameView(from, { ...from })).toBe(true)
+    expect(sameView(from, to)).toBe(false)
+  })
+  it("eases from 0 to 1 through the midpoint", () => {
+    expect(ease(0)).toBe(0)
+    expect(ease(0.5)).toBe(0.5)
+    expect(ease(1)).toBe(1)
+    expect(ease(0.25)).toBeCloseTo(0.0625)
+  })
+  it("keeps shared ticks solid and fades the others", () => {
+    const a = { value: 1, label: "a" }
+    const b = { value: 2, label: "b" }
+    const c = { value: 3, label: "c" }
+    expect(crossfadeTicks([a, b], [b, c], 0.25)).toEqual([
+      { ...a, opacity: 0.75 },
+      { ...b, opacity: 1 },
+      { ...c, opacity: 0.25 },
+    ])
   })
 })
 

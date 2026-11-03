@@ -4,17 +4,44 @@ import { useEffect, useId, useMemo, useRef, useState } from "react"
 
 import {
   buildChart,
+  crossfadeTicks,
+  ease,
+  lerp,
+  lerpView,
   nearestPoint,
+  projectionLine,
+  sameView,
+  viewOf,
+  type ChartModel,
   type Entry,
   type Goal,
   type Point,
   type Range,
+  type Tick,
+  type View,
 } from "@/lib/weight/chart"
 import { formatEntryDate, fromDay, toDay } from "@/lib/weight/dates"
 import { formatKg } from "@/lib/weight/kg"
 
-const HEIGHT = 280
-const M = { top: 12, right: 52, bottom: 28, left: 8 }
+const SIZES = {
+  default: {
+    height: 280,
+    ticks: {},
+    margin: { top: 12, right: 52, bottom: 28, left: 8 },
+    xLabelInset: 8,
+  },
+  compact: {
+    height: 72,
+    ticks: { maxYTicks: 3, maxXTicks: 3, snapY: true },
+    margin: { top: 6, right: 36, bottom: 20, left: 0 },
+    xLabelInset: 2,
+  },
+}
+const ANIMATION_MS = 500
+/** Past the plot's right and bottom edges, so a marker on the edge isn't cut in half. */
+const MARKER_ROOM = 7
+/** Dots are too dense to read above this many visible entries. */
+const MAX_DOTS = 45
 
 function useWidth() {
   const ref = useRef<HTMLDivElement>(null)
@@ -31,44 +58,104 @@ function useWidth() {
   return [ref, width] as const
 }
 
+function yTicksOf(model: ChartModel): Tick[] {
+  const step = model.yTicks.length > 1 ? model.yTicks[1] - model.yTicks[0] : 1
+  return model.yTicks.map((value) => ({
+    value,
+    label: step >= 1 ? String(Math.round(value)) : formatKg(value),
+  }))
+}
+
+const showsDots = (model: ChartModel) => model.visible.length <= MAX_DOTS
+
 export function WeightChart({
   entries,
   goal,
   range,
   today,
+  size = "default",
 }: {
   entries: Entry[]
   goal: Goal | null
   range: Range
   today: string
+  size?: keyof typeof SIZES
 }) {
+  const { height: HEIGHT, ticks, margin: M, xLabelInset } = SIZES[size]
   const [ref, width] = useWidth()
   const clipId = useId()
   const [active, setActive] = useState<Point | null>(null)
   const model = useMemo(
-    () => buildChart(entries, goal, range, toDay(today)),
-    [entries, goal, range, today]
+    () => buildChart(entries, goal, range, toDay(today), ticks),
+    [entries, goal, range, today, ticks]
   )
+
+  // Changing range moves the scales from the view on screen to the new one, so
+  // the same line slides and stretches rather than being redrawn.
+  const [tween, setTween] = useState<{
+    fromView: View
+    from: ChartModel
+    to: ChartModel
+    t: number
+  }>({ fromView: viewOf(model), from: model, to: model, t: 1 })
+  const view = lerpView(tween.fromView, viewOf(tween.to), ease(tween.t))
+  if (tween.to !== model) {
+    setActive(null)
+    setTween({
+      fromView: view,
+      from: tween.to,
+      to: model,
+      t: sameView(view, viewOf(model)) ? 1 : 0,
+    })
+  }
+  const animating = tween.t < 1
+  useEffect(() => {
+    if (!animating) return
+    const started = performance.now()
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
+    let frame = requestAnimationFrame(function step(now) {
+      const t = reduced ? 1 : Math.min((now - started) / ANIMATION_MS, 1)
+      setTween((current) => ({ ...current, t }))
+      if (t < 1) frame = requestAnimationFrame(step)
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [animating, tween.to])
+  const fade = ease(tween.t)
 
   const innerW = Math.max(0, width - M.left - M.right)
   const innerH = HEIGHT - M.top - M.bottom
-  const [yMin, yMax] = model.yDomain
   const sx = (day: number) =>
-    M.left + ((day - model.start) / (model.end - model.start)) * innerW
-  const sy = (kg: number) => M.top + ((yMax - kg) / (yMax - yMin)) * innerH
+    M.left + ((day - view.start) / (view.end - view.start)) * innerW
+  const sy = (kg: number) =>
+    M.top + ((view.yMax - kg) / (view.yMax - view.yMin)) * innerH
 
-  const yStep = model.yTicks.length > 1 ? model.yTicks[1] - model.yTicks[0] : 1
-  const yLabel = (v: number) =>
-    yStep >= 1 ? String(Math.round(v)) : formatKg(v)
   const goalY = model.goalKg !== null ? sy(model.goalKg) : null
-  const yTicks = model.yTicks.filter(
-    (v) => goalY === null || Math.abs(sy(v) - goalY) > 14
+  const yTicks = crossfadeTicks(
+    yTicksOf(tween.from),
+    yTicksOf(tween.to),
+    fade
+  ).filter(
+    (t) =>
+      sy(t.value) >= M.top &&
+      sy(t.value) <= M.top + innerH &&
+      (goalY === null || Math.abs(sy(t.value) - goalY) > 14)
   )
+  const xTicks = crossfadeTicks(
+    tween.from.xTicks,
+    tween.to.xTicks,
+    fade
+  ).filter((t) => sx(t.value) >= M.left && sx(t.value) <= M.left + innerW)
 
-  const path = model.line
+  const path = model.points
     .map((p, i) => `${i ? "L" : "M"}${sx(p.day)},${sy(p.kg)}`)
     .join("")
-  const showDots = model.visible.length <= 45
+  const dotOpacity = lerp(
+    showsDots(tween.from) ? 1 : 0,
+    showsDots(tween.to) ? 1 : 0,
+    fade
+  )
+  const projection =
+    model.latest && projectionLine(model.latest, goal, view.end)
 
   function pick(clientX: number, target: SVGRectElement) {
     const rect = target.getBoundingClientRect()
@@ -97,35 +184,35 @@ export function WeightChart({
               <rect
                 x={M.left}
                 y={0}
-                width={innerW}
-                height={HEIGHT - M.bottom}
+                width={innerW + MARKER_ROOM}
+                height={HEIGHT - M.bottom + MARKER_ROOM}
               />
             </clipPath>
           </defs>
 
           {/* y grid + labels (right) */}
-          {yTicks.map((v) => (
-            <g key={v}>
+          {yTicks.map((t) => (
+            <g key={t.value} opacity={t.opacity}>
               <line
                 x1={M.left}
                 x2={M.left + innerW}
-                y1={sy(v)}
-                y2={sy(v)}
+                y1={sy(t.value)}
+                y2={sy(t.value)}
                 className="stroke-border"
               />
               <text
                 x={M.left + innerW + 8}
-                y={sy(v)}
+                y={sy(t.value)}
                 dy="0.32em"
                 className="fill-muted-foreground tabular-nums"
               >
-                {yLabel(v)}
+                {t.label}
               </text>
             </g>
           ))}
 
           {/* x labels */}
-          {model.xTicks.map((t) => {
+          {xTicks.map((t) => {
             const x = sx(t.value)
             const anchor =
               x < M.left + 20
@@ -137,8 +224,9 @@ export function WeightChart({
               <text
                 key={t.value}
                 x={x}
-                y={HEIGHT - 8}
+                y={HEIGHT - xLabelInset}
                 textAnchor={anchor}
+                opacity={t.opacity}
                 className="fill-muted-foreground"
               >
                 {t.label}
@@ -169,18 +257,18 @@ export function WeightChart({
           )}
 
           <g clipPath={`url(#${clipId})`}>
-            {model.projection && (
+            {projection && (
               <line
-                x1={sx(model.projection.from.day)}
-                y1={sy(model.projection.from.kg)}
-                x2={sx(model.projection.to.day)}
-                y2={sy(model.projection.to.kg)}
+                x1={sx(projection.from.day)}
+                y1={sy(projection.from.kg)}
+                x2={sx(projection.to.day)}
+                y2={sy(projection.to.kg)}
                 strokeDasharray="4 4"
                 strokeWidth={2}
                 className="stroke-primary opacity-60"
               />
             )}
-            {model.line.length > 1 && (
+            {model.points.length > 1 && (
               <path
                 d={path}
                 fill="none"
@@ -189,14 +277,17 @@ export function WeightChart({
                 className="stroke-primary"
               />
             )}
-            {(showDots || model.visible.length === 1) &&
-              model.visible.map((p) =>
-                p === model.latest ? null : (
+            {dotOpacity > 0 &&
+              model.points.map((p) =>
+                p === model.latest ||
+                p.day < view.start ||
+                p.day > view.end ? null : (
                   <circle
                     key={p.day}
                     cx={sx(p.day)}
                     cy={sy(p.kg)}
                     r={2.5}
+                    opacity={dotOpacity}
                     className="fill-primary"
                   />
                 )

@@ -90,7 +90,6 @@ export function WeightView({
               </div>
             ) : (
               <WeightChart
-                key={range}
                 entries={entries}
                 goal={chartGoal}
                 range={range}

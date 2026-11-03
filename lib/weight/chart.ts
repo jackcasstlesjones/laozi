@@ -5,24 +5,27 @@
 import { addMonths, formatMonth, formatShortDate, toDay } from "./dates"
 
 export const RANGES = ["1W", "1M", "3M", "6M", "1Y", "All"] as const
-export type Range = (typeof RANGES)[number]
+/** Not offered in the selector: the compact chart on the Food tab always shows this. */
+export const TREND_RANGE = "2W"
+export type Range = (typeof RANGES)[number] | typeof TREND_RANGE
 export const DEFAULT_RANGE: Range = "6M"
 
 export type Entry = { date: string; weightKg: number }
 export type Goal = { goalKg: number; rateKgPerWeek: number }
 export type Point = { day: number; kg: number }
 export type Tick = { value: number; label: string }
+/** The part of the chart's scales that animates between ranges. */
+export type View = { start: number; end: number; yMin: number; yMax: number }
 
 export type ChartModel = {
   start: number
   end: number
-  /** Points to draw the line through, including one just outside each edge (clipped). */
-  line: Point[]
+  /** Every entry, oldest first. The line runs through all of them, clipped to the window. */
+  points: Point[]
   /** Entries inside the window: hover targets and y-domain inputs. */
   visible: Point[]
   latest: Point | null
   goalKg: number | null
-  projection: { from: Point; to: Point } | null
   yDomain: [number, number]
   yTicks: number[]
   xTicks: Tick[]
@@ -33,8 +36,8 @@ const FUTURE_SHARE = 0.25
 /** Upper bound on how far the All range extends for a projection. */
 const MAX_PROJECTION_DAYS = 3 * 365
 const Y_STEPS = [0.25, 0.5, 1, 2, 2.5, 5, 10, 20, 25, 50, 100]
-const MAX_Y_TICKS = 5
-const MAX_X_TICKS = 6
+export const MAX_Y_TICKS = 5
+export const MAX_X_TICKS = 6
 
 export function toPoints(entries: Entry[]): Point[] {
   return entries
@@ -75,7 +78,9 @@ export function windowFor(
   const start =
     range === "1W"
       ? today - 7
-      : addMonths(today, -{ "1M": 1, "3M": 3, "6M": 6, "1Y": 12 }[range])
+      : range === TREND_RANGE
+        ? today - 14
+        : addMonths(today, -{ "1M": 1, "3M": 3, "6M": 6, "1Y": 12 }[range])
   const future = reach !== null ? Math.round((today - start) * FUTURE_SHARE) : 0
   return { start, end: today + future }
 }
@@ -96,7 +101,12 @@ export function projectionLine(
   }
 }
 
-export function yScale(values: number[]): {
+export function yScale(
+  values: number[],
+  maxTicks = MAX_Y_TICKS,
+  /** End the domain on ticks around the values, with no padding beyond them. */
+  snap = false
+): {
   domain: [number, number]
   ticks: number[]
 } {
@@ -106,7 +116,13 @@ export function yScale(values: number[]): {
   min -= pad
   max += pad
   const step =
-    Y_STEPS.find((s) => (max - min) / s <= MAX_Y_TICKS) ?? Y_STEPS.at(-1)!
+    Y_STEPS.find((s) => (max - min) / s <= maxTicks) ?? Y_STEPS.at(-1)!
+  if (snap) {
+    const low = Math.floor(Math.min(...values) / step) * step
+    const high = Math.ceil(Math.max(...values) / step) * step
+    min = low
+    max = high > low ? high : low + step
+  }
   const ticks: number[] = []
   for (let v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) {
     ticks.push(Math.round(v * 100) / 100)
@@ -114,12 +130,16 @@ export function yScale(values: number[]): {
   return { domain: [min, max], ticks }
 }
 
-export function xTicks(start: number, end: number): Tick[] {
+export function xTicks(
+  start: number,
+  end: number,
+  maxTicks = MAX_X_TICKS
+): Tick[] {
   const span = end - start
   const ticks: Tick[] = []
 
   if (span <= 14) {
-    const step = Math.max(1, Math.ceil(span / MAX_X_TICKS))
+    const step = Math.max(1, Math.ceil(span / maxTicks))
     for (let d = Math.ceil(start); d <= end; d += step)
       ticks.push({ value: d, label: formatShortDate(d) })
     return ticks
@@ -155,35 +175,30 @@ export function buildChart(
   entries: Entry[],
   goal: Goal | null,
   range: Range,
-  today: number
+  today: number,
+  { maxYTicks = MAX_Y_TICKS, maxXTicks = MAX_X_TICKS, snapY = false } = {}
 ): ChartModel {
   const points = toPoints(entries)
   const { start, end } = windowFor(range, points, today, goal)
   const visible = points.filter((p) => p.day >= start && p.day <= end)
-
-  const before = points.filter((p) => p.day < start).at(-1)
-  const line = [...(before ? [before] : []), ...visible]
-
   const latest = points.at(-1) ?? null
-  const projection = latest ? projectionLine(latest, goal, end) : null
 
   const yValues = visible.map((p) => p.kg)
   if (goal) yValues.push(goal.goalKg)
   if (yValues.length === 0 && latest) yValues.push(latest.kg)
   if (yValues.length === 0) yValues.push(80)
-  const y = yScale(yValues)
+  const y = yScale(yValues, maxYTicks, snapY)
 
   return {
     start,
     end,
-    line,
+    points,
     visible,
-    latest: latest && latest.day >= start ? latest : null,
+    latest,
     goalKg: goal?.goalKg ?? null,
-    projection,
     yDomain: y.domain,
     yTicks: y.ticks,
-    xTicks: xTicks(start, end),
+    xTicks: xTicks(start, end, maxXTicks),
   }
 }
 
@@ -194,4 +209,58 @@ export function nearestPoint(points: Point[], day: number): Point | null {
     if (!best || Math.abs(p.day - day) <= Math.abs(best.day - day)) best = p
   }
   return best
+}
+
+export function viewOf(model: ChartModel): View {
+  const [yMin, yMax] = model.yDomain
+  return { start: model.start, end: model.end, yMin, yMax }
+}
+
+export function lerp(from: number, to: number, t: number): number {
+  return from + (to - from) * t
+}
+
+export function lerpView(from: View, to: View, t: number): View {
+  return {
+    start: lerp(from.start, to.start, t),
+    end: lerp(from.end, to.end, t),
+    yMin: lerp(from.yMin, to.yMin, t),
+    yMax: lerp(from.yMax, to.yMax, t),
+  }
+}
+
+export function sameView(a: View, b: View): boolean {
+  return (
+    a.start === b.start &&
+    a.end === b.end &&
+    a.yMin === b.yMin &&
+    a.yMax === b.yMax
+  )
+}
+
+/** Cubic ease-in-out for t between 0 and 1. */
+export function ease(t: number): number {
+  return t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2
+}
+
+/**
+ * Ticks to draw part-way (t) through a change of range: ticks in both sets stay
+ * solid, the outgoing ones fade out and the incoming ones fade in.
+ */
+export function crossfadeTicks(
+  from: Tick[],
+  to: Tick[],
+  t: number
+): (Tick & { opacity: number })[] {
+  const toValues = new Set(to.map((tick) => tick.value))
+  const fromValues = new Set(from.map((tick) => tick.value))
+  return [
+    ...from
+      .filter((tick) => !toValues.has(tick.value))
+      .map((tick) => ({ ...tick, opacity: 1 - t })),
+    ...to.map((tick) => ({
+      ...tick,
+      opacity: fromValues.has(tick.value) ? 1 : t,
+    })),
+  ]
 }

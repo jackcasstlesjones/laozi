@@ -23,6 +23,7 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 - Line chart of weight over time. The y-axis labels are on the right, the date labels along the bottom.
 - Range selector: 1W, 1M, 3M, 6M, 1Y, All. Defaults to 6M.
 - The y-axis scales to the visible entries plus the goal weight, with some padding.
+- Switching range animates (500 ms): the same line slides and stretches to the new window and y-scale, the axis labels move with it and fade in or out, and the projection follows. With the reduced-motion setting on, it switches at once.
 - Hovering (desktop) or tapping (mobile) shows the nearest entry's date and weight.
 - The latest entry gets a hollow circle marker.
 - Goal line: a dashed horizontal line at the goal weight, with its value labelled in bold on the axis.
