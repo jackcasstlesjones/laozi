@@ -127,7 +127,7 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 
 - `/login` — email + password.
 - `/` → redirects to `/food`.
-- `/weight` — chart + entries list (side by side on wide screens), record button, Export.
+- `/weight` — chart + entries list (side by side on wide screens). Record button above them on wide screens; full width between the chart and the list when stacked. Export at the top right of the entries card.
 - `/food` — weight trend, Today card, searchable, sortable recipe list with +/− counters. `/food/[slug]` — recipe detail. `/food/today` — today's items (the mobile bar opens it). `/food/history` — past days.
 - `/account` — Settings (from the header): goal, daily calorie limit, change password.
 - `/api/auth/*` — Better Auth. `/api/health` — DB ping.

@@ -6,6 +6,7 @@ import { useMemo, useState, useSyncExternalStore } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { cn } from "@/lib/utils"
 import { DEFAULT_RANGE, RANGES, type Range } from "@/lib/weight/chart"
 import { formatEntryDate, localToday } from "@/lib/weight/dates"
 import { formatKg } from "@/lib/weight/kg"
@@ -45,8 +46,11 @@ export function WeightView({
     [goal]
   )
 
-  const recordButton = (
-    <Button onClick={() => setEditing({ mode: "new" })}>
+  const recordButton = (className?: string) => (
+    <Button
+      className={cn("h-10 px-3 text-base", className)}
+      onClick={() => setEditing({ mode: "new" })}
+    >
       <Plus data-icon="inline-start" />
       Record weight
     </Button>
@@ -54,13 +58,6 @@ export function WeightView({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        {recordButton}
-        <div className="ml-auto flex gap-2">
-          <ExportDialog entries={entries} goal={goal} />
-        </div>
-      </div>
-
       <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
         <Card>
           <CardHeader className="flex flex-wrap items-center justify-between gap-2">
@@ -86,7 +83,7 @@ export function WeightView({
             {entries.length === 0 ? (
               <div className="flex h-56 flex-col items-center justify-center gap-4">
                 <p className="text-muted-foreground">No weigh-ins yet</p>
-                {recordButton}
+                {recordButton()}
               </div>
             ) : (
               <WeightChart
@@ -99,9 +96,16 @@ export function WeightView({
           </CardContent>
         </Card>
 
+        {/* Stacked: between the chart and the entries. Side by side: above both. */}
+        {entries.length > 0 &&
+          recordButton(
+            "w-full lg:order-first lg:col-span-2 lg:w-auto lg:justify-self-start"
+          )}
+
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-wrap items-center justify-between gap-2">
             <CardTitle>Entries</CardTitle>
+            <ExportDialog entries={entries} goal={goal} />
           </CardHeader>
           <CardContent>
             {entries.length === 0 ? (

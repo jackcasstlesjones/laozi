@@ -217,7 +217,7 @@ export function ExportDialog({
 
   return (
     <Dialog>
-      <DialogTrigger render={<Button variant="outline" />}>
+      <DialogTrigger render={<Button variant="outline" size="sm" />}>
         <Download data-icon="inline-start" />
         Export
       </DialogTrigger>
