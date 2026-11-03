@@ -42,6 +42,12 @@
 - [x] Recipe list: search, sort by name/kcal, kcal + macros; recipe detail
 - [x] `claude-recipes`: schema in its CLAUDE.md, files migrated, legacy gyoza file moved to `legacy/` (done by Jack)
 
+## M7 Calorie counting
+
+- [x] `food_log` table + constraint tests; local-date and day-summary logic — tested
+- [x] +/− per recipe, Today card with total and custom items
+- [x] History page (on branch `feat/calorie-counting`, awaiting Jack's local test)
+
 ## M6 Account and polish
 
 - [x] Change password (current, new ≥12, confirm; revokes other sessions)

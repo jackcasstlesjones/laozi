@@ -74,6 +74,15 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - Opening a recipe shows its ingredients with calories for each, macros, notes and tags.
 - The app has no add, edit or delete for recipes.
 
+### Calorie counting
+
+- Each recipe row in the list has − and + buttons with today's count between them. + adds one serving to today; − removes one (not below zero).
+- A **Today** card at the top of the Food tab shows today's total kcal and today's items ("2 × Assorted Gyozas · 80 kcal"), each removable.
+- **Custom items:** a name and kcal (whole number, 1–10,000), e.g. "Sausage and mash, 800". They are saved against today only and never become recipes.
+- "Today" is the calendar date in the browser's time zone. At midnight the total starts again from 0; the previous day's entries stay as that day's record. No background job is involved.
+- Each entry stores the name and kcal per serving at the time it was added, so editing or deleting a recipe later doesn't change history.
+- **History** (`/food/history`): every day with entries, newest first, with its total and items. Read-only.
+
 ## LLM access
 
 - **Recipes:** Claude adds, edits and removes recipes by committing JSON files to the repo, following the schema in CLAUDE.md. This works from Claude Code and from Claude chats that have repo access. Claude Desktop needs GitHub's official MCP server to do it.
@@ -103,14 +112,14 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 
 ## Non-goals (v1)
 
-- Calorie logging, meal diaries, barcode scanning, exercise. Multiple users or sign-up. Recipe editing in the app. An API or MCP server.
+- Barcode scanning, exercise, macro totals, editing past days' calorie logs. Multiple users or sign-up. Recipe editing in the app. An API or MCP server.
 
 ## Information architecture
 
 - `/login` — email + password.
 - `/` → redirects to `/weight`.
 - `/weight` — chart + entries list (side by side on wide screens), record button, goal settings, Export.
-- `/food` — searchable, sortable recipe list. `/food/[slug]` — recipe detail.
+- `/food` — Today card, searchable, sortable recipe list with +/− counters. `/food/[slug]` — recipe detail. `/food/history` — past days.
 - `/account` — change password (from the header).
 - `/api/auth/*` — Better Auth. `/api/health` — DB ping.
 
@@ -125,7 +134,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 
 - **Stack:** Next.js 16.4 (App Router, Turbopack, no Cache Components), React 19.3, TypeScript strict, pnpm. Postgres 17 (Docker locally, Neon in production) via Drizzle ORM **1.0.0-rc.5 (pinned)** + `pg`. Zod 4 with `drizzle-orm/zod`. Better Auth 1.7. Vitest.
 - **Layout (no `src/`):** `app/` routes; `components/` (`ui/` = shadcn); `lib/` (env, auth, domain logic); `db/` (schema, relations, client, migrations); `scripts/` (seed, gates, import); `tests/` helpers.
-- **Data model:** `weigh_in(id, date unique, weight_kg numeric(4,1) check 30–300)`; `goal_settings` singleton (`id = 1`, `goal_kg` nullable, `rate_kg_per_week` default 0.5); Better Auth `user`, `session`, `account`, `verification`, `rate_limit`.
+- **Data model:** `weigh_in(id, date unique, weight_kg numeric(4,1) check 30–300)`; `goal_settings` singleton (`id = 1`, `goal_kg` nullable, `rate_kg_per_week` default 0.5); `food_log(id, date, recipe_slug nullable, name, kcal per serving, quantity ≥ 1)`, unique on `(date, recipe_slug)` for recipe rows; Better Auth `user`, `session`, `account`, `verification`, `rate_limit`.
 - **Auth:** Better Auth email/password, sign-up disabled, min password 12, 30-day database sessions, database rate limiting. The account is created by the seed from `ADMIN_EMAIL`/`ADMIN_PASSWORD` only if it doesn't exist.
 - **Recipes:** fetched server-side from GitHub (contents API listing + raw downloads), cached with a 300 s revalidate; validated per file with Zod.
 - **Env vars:** `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED` (migrations/seed), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (production only), `ADMIN_EMAIL`, `ADMIN_PASSWORD`; locally also `TEST_DATABASE_URL`.
@@ -148,5 +157,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - 2026-11-03: On 1W–1Y the chart window ends today plus a quarter of the window's length when a goal is set, so the projection has room; on All it runs from the first entry to the day the projection reaches the goal (capped at 3 years).
 - 2026-11-03: Future dates are checked against the browser's local date (sent with each save).
 - 2026-11-03: The chart is hand-built SVG (no chart library).
+- 2026-11-03: Calorie counting groups entries by local calendar date (time zone from a `tz` cookie set by the browser); midnight "reset" is just a new date, not a job.
+- 2026-11-03: Food log entries snapshot name and kcal, so recipes can stay in GitHub without breaking history.
 - 2026-11-03: Local Postgres on port 5442 (`laozi` and `laozi_test` databases).
 - 2026-11-03: Production domain is `laoziloss.vercel.app`; `BETTER_AUTH_URL` set to it. (`laozi-bay.vercel.app` also still resolves.)
