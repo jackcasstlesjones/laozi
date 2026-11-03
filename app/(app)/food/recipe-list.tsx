@@ -6,6 +6,7 @@ import { useState } from "react"
 
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Toggle } from "@/components/ui/toggle"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   filterAndSort,
@@ -28,6 +29,7 @@ export function RecipeList({
 }) {
   const [query, setQuery] = useState("")
   const [sort, setSort] = useState<RecipeSort>("name")
+  const [showMacros, setShowMacros] = useState(false)
   const shown = filterAndSort(recipes, query, sort)
 
   return (
@@ -59,6 +61,15 @@ export function RecipeList({
             kcal
           </ToggleGroupItem>
         </ToggleGroup>
+        <Toggle
+          variant="outline"
+          size="sm"
+          pressed={showMacros}
+          onPressedChange={setShowMacros}
+          className="px-3"
+        >
+          Macros
+        </Toggle>
       </div>
 
       {skipped > 0 && (
@@ -85,10 +96,12 @@ export function RecipeList({
                 >
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-medium">{r.name}</div>
-                    <Macros
-                      macros={r.macros}
-                      className="text-sm text-muted-foreground tabular-nums"
-                    />
+                    {showMacros && (
+                      <Macros
+                        macros={r.macros}
+                        className="text-sm text-muted-foreground tabular-nums"
+                      />
+                    )}
                   </div>
                   <div className="text-right whitespace-nowrap">
                     <div className="font-semibold tabular-nums">

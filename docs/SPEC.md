@@ -69,7 +69,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 
 ### Browsing
 
-- A searchable list of recipes, each showing its name, kcal per serving and macros.
+- A searchable list of recipes, each showing its name and kcal per serving. Macros are hidden by default; a **Macros** toggle shows them in the list (not remembered between visits).
 - Sort by name or by kcal.
 - Opening a recipe shows its ingredients with calories for each, macros, notes and tags.
 - The app has no add, edit or delete for recipes.
