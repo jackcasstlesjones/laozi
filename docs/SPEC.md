@@ -65,7 +65,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 ```
 
 - `kcal` is for one `serving`. For per-item foods like gyozas, use `"serving": "1 gyoza"`, so the app can always show one calorie figure.
-- The existing files get migrated to this schema once. The legacy gyoza file gets deleted.
+- The existing files get migrated to this schema once. The legacy gyoza file moves to `legacy/`. The app reads only `.json` files in the repo root.
 
 ### Browsing
 

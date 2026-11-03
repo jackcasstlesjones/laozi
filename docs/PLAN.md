@@ -3,7 +3,7 @@
 ## Where we are
 
 - **2026-11-03:** M0 done. Live at https://laoziloss.vercel.app (API only so far; the home page is still the scaffold). Next: M1 shell + login.
-- **Open questions for Jack:** approval to run the Lose It import against production; go-ahead to migrate the `claude-recipes` repo files to the new schema (M5).
+- **Open questions for Jack:** none.
 
 ## M0 Foundations
 
@@ -34,13 +34,13 @@
 
 - [x] Pure CSV parser (lb→kg, last row per date wins, deleted rows ignored, unreadable row numbers) — tested
 - [x] `pnpm import:loseit <file>` script: skips existing dates, reports imported/skipped/unreadable (local run: 157 imported, 4 deleted rows ignored)
-- [ ] Run the import once against production (needs Jack's approval)
+- [x] Ran the import against production 2026-11-03: 157 imported, 4 deleted rows ignored, none unreadable
 
 ## M5 Food
 
 - [ ] Recipe schema (Zod) + GitHub fetcher with 5-minute cache, skipped-file count — tested
 - [ ] Recipe list: search, sort by name/kcal, kcal + macros; recipe detail
-- [ ] `claude-recipes`: document schema in its CLAUDE.md, migrate files, delete legacy gyoza file (needs Jack's go-ahead)
+- [x] `claude-recipes`: schema in its CLAUDE.md, files migrated, legacy gyoza file moved to `legacy/` (done by Jack)
 
 ## M6 Account and polish
 
