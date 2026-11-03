@@ -89,29 +89,32 @@ export function RecipeList({
         <Card className="gap-0 py-0">
           <ul className="divide-y">
             {shown.map((r) => (
-              <li key={r.slug} className="flex items-center gap-3 pr-3">
-                <Link
-                  href={`/food/${r.slug}`}
-                  className="flex min-w-0 flex-1 items-center gap-4 py-3 pl-4 transition-colors hover:bg-muted/50"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate font-medium">{r.name}</div>
-                    {showMacros && (
-                      <Macros
-                        macros={r.macros}
-                        className="text-sm text-muted-foreground tabular-nums"
-                      />
-                    )}
+              <li
+                key={r.slug}
+                className="flex items-center gap-4 py-3 pr-3 pl-4"
+              >
+                <div className="min-w-0 flex-1">
+                  <Link
+                    href={`/food/${r.slug}`}
+                    className="inline-block max-w-full truncate align-top font-medium underline decoration-muted-foreground/50 underline-offset-4 hover:decoration-foreground"
+                  >
+                    {r.name}
+                  </Link>
+                  {showMacros && (
+                    <Macros
+                      macros={r.macros}
+                      className="block text-sm text-muted-foreground tabular-nums"
+                    />
+                  )}
+                </div>
+                <div className="text-right whitespace-nowrap">
+                  <div className="font-semibold tabular-nums">
+                    {r.kcal} kcal
                   </div>
-                  <div className="text-right whitespace-nowrap">
-                    <div className="font-semibold tabular-nums">
-                      {r.kcal} kcal
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      per {r.serving}
-                    </div>
+                  <div className="text-xs text-muted-foreground">
+                    per {r.serving}
                   </div>
-                </Link>
+                </div>
                 <Counter
                   count={counts[r.slug] ?? 0}
                   name={r.name}
