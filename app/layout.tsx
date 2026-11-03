@@ -1,4 +1,5 @@
-import { Geist, Geist_Mono, Inter } from "next/font/google"
+import type { Metadata, Viewport } from "next"
+import { Geist_Mono, Inter } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -10,6 +11,18 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+export const metadata: Metadata = {
+  title: "Laozi",
+  description: "Weight and recipes",
+}
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+}
 
 export default function RootLayout({
   children,
