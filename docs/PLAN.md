@@ -2,7 +2,7 @@
 
 ## Where we are
 
-- **2026-11-03:** M0–M6 features built and live at https://laoziloss.vercel.app: login, Weight (chart, entries, goal, export, 157 imported weigh-ins), Food (recipes from GitHub), Account. Next: polish (loading/error states, icon) and anything Jack finds while testing.
+- **2026-11-03:** M0–M6 features built and live at https://laoziloss.vercel.app: login, Weight (chart, entries, goal, export, 157 imported weigh-ins), Food (recipes from GitHub), Account. Next: anything Jack finds while testing. Git-push deploys are disabled on the Vercel project (`createDeployments: disabled`); until Jack re-enables them, deploy with `vercel deploy --prod`.
 - **Open questions for Jack:** none.
 
 ## M0 Foundations
@@ -45,4 +45,4 @@
 ## M6 Account and polish
 
 - [x] Change password (current, new ≥12, confirm; revokes other sessions)
-- [ ] Polish pass: loading/error states, metadata, favicon
+- [x] Polish pass: loading/error states, metadata, favicon
