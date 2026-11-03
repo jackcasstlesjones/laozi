@@ -9,13 +9,9 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { DEFAULT_RANGE, RANGES, type Range } from "@/lib/weight/chart"
 import { formatEntryDate, localToday } from "@/lib/weight/dates"
 import { formatKg } from "@/lib/weight/kg"
-import type { GoalRow, WeighInRow } from "@/lib/weight/queries"
-import {
-  DeleteDialog,
-  ExportDialog,
-  GoalDialog,
-  WeighInDialog,
-} from "./weight-dialogs"
+import type { Settings } from "@/lib/settings/queries"
+import type { WeighInRow } from "@/lib/weight/queries"
+import { DeleteDialog, ExportDialog, WeighInDialog } from "./weight-dialogs"
 import { WeightChart } from "./weight-chart"
 
 /** The device's calendar date; the server's UTC date during SSR. */
@@ -34,7 +30,7 @@ export function WeightView({
   goal,
 }: {
   entries: WeighInRow[]
-  goal: GoalRow
+  goal: Settings
 }) {
   const today = useToday()
   const [range, setRange] = useState<Range>(DEFAULT_RANGE)
@@ -61,7 +57,6 @@ export function WeightView({
       <div className="flex flex-wrap items-center gap-2">
         {recordButton}
         <div className="ml-auto flex gap-2">
-          <GoalDialog goal={goal} />
           <ExportDialog entries={entries} goal={goal} />
         </div>
       </div>

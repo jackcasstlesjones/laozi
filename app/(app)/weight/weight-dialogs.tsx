@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, Copy, Download, Target } from "lucide-react"
+import { Check, Copy, Download } from "lucide-react"
 import { useState, useTransition } from "react"
 
 import {
@@ -29,8 +29,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { formatEntryDate } from "@/lib/weight/dates"
 import { buildExportMarkdown } from "@/lib/weight/export"
 import { formatKg } from "@/lib/weight/kg"
-import type { GoalRow, WeighInRow } from "@/lib/weight/queries"
-import { deleteWeighIn, saveGoal, saveWeighIn } from "./actions"
+import type { Settings } from "@/lib/settings/queries"
+import type { WeighInRow } from "@/lib/weight/queries"
+import { deleteWeighIn, saveWeighIn } from "./actions"
 
 function FormError({ message }: { message: string | null }) {
   if (!message) return null
@@ -198,101 +199,12 @@ export function DeleteDialog({
   )
 }
 
-export function GoalDialog({ goal }: { goal: GoalRow }) {
-  const [open, setOpen] = useState(false)
-  const [goalKg, setGoalKg] = useState(
-    goal.goalKg === null ? "" : String(goal.goalKg)
-  )
-  const [rate, setRate] = useState(String(goal.rateKgPerWeek))
-  const [error, setError] = useState<string | null>(null)
-  const [pending, startTransition] = useTransition()
-
-  function save(clear: boolean) {
-    setError(null)
-    startTransition(async () => {
-      const res = await saveGoal({
-        goalKg: clear || goalKg.trim() === "" ? null : goalKg,
-        rateKgPerWeek: rate,
-      })
-      if (res.ok) {
-        if (clear) setGoalKg("")
-        setOpen(false)
-      } else if ("error" in res) setError(res.error)
-    })
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="outline" />}>
-        <Target data-icon="inline-start" />
-        Goal
-      </DialogTrigger>
-      <DialogContent>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            save(false)
-          }}
-          className="flex flex-col gap-4"
-        >
-          <DialogHeader>
-            <DialogTitle>Goal</DialogTitle>
-            <DialogDescription>
-              Leave the goal weight empty to hide the goal and projection lines.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="goal-kg">Goal weight (kg)</Label>
-            <Input
-              id="goal-kg"
-              type="number"
-              inputMode="decimal"
-              step="0.1"
-              value={goalKg}
-              onChange={(e) => setGoalKg(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="goal-rate">Target rate (kg per week)</Label>
-            <Input
-              id="goal-rate"
-              type="number"
-              inputMode="decimal"
-              step="0.05"
-              required
-              value={rate}
-              onChange={(e) => setRate(e.target.value)}
-            />
-          </div>
-          <FormError message={error} />
-          <DialogFooter>
-            {goal.goalKg !== null && (
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={pending}
-                onClick={() => save(true)}
-                className="sm:mr-auto"
-              >
-                Clear goal
-              </Button>
-            )}
-            <Button type="submit" disabled={pending}>
-              Save
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
 export function ExportDialog({
   entries,
   goal,
 }: {
   entries: WeighInRow[]
-  goal: GoalRow
+  goal: Settings
 }) {
   const [copied, setCopied] = useState(false)
   const markdown = buildExportMarkdown(entries, goal)

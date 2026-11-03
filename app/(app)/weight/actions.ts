@@ -4,9 +4,9 @@ import { and, eq, ne } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
 import { db } from "@/db"
-import { goalSettings, weighIn } from "@/db/schema"
+import { weighIn } from "@/db/schema"
 import { requireSession } from "@/lib/session"
-import { goalInput, weighInInput } from "@/lib/weight/validation"
+import { weighInInput } from "@/lib/weight/validation"
 
 export type ActionResult =
   | { ok: true }
@@ -44,19 +44,6 @@ export async function saveWeighIn(input: unknown): Promise<ActionResult> {
 export async function deleteWeighIn(id: number): Promise<ActionResult> {
   await requireSession()
   await db.delete(weighIn).where(eq(weighIn.id, id))
-  revalidatePath("/weight")
-  return { ok: true }
-}
-
-export async function saveGoal(input: unknown): Promise<ActionResult> {
-  await requireSession()
-  const parsed = goalInput.safeParse(input)
-  if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0].message }
-  await db
-    .insert(goalSettings)
-    .values({ id: 1, ...parsed.data })
-    .onConflictDoUpdate({ target: goalSettings.id, set: parsed.data })
   revalidatePath("/weight")
   return { ok: true }
 }

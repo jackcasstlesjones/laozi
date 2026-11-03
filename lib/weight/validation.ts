@@ -1,12 +1,13 @@
 import { createInsertSchema } from "drizzle-orm/zod"
 import { z } from "zod"
 
-import { goalSettings, weighIn } from "@/db/schema"
+import { weighIn } from "@/db/schema"
 import { MAX_KG, MIN_KG, roundKg } from "./kg"
 
 export const WEIGHT_RANGE_MESSAGE = `Enter a weight between ${MIN_KG} and ${MAX_KG} kg`
 
-const kg = z.coerce
+/** kg as typed by the user: coerced, rounded to 1 dp, 30–300. */
+export const kg = z.coerce
   .number({ error: WEIGHT_RANGE_MESSAGE })
   .transform(roundKg)
   .pipe(
@@ -35,12 +36,3 @@ export const weighInInput = createInsertSchema(weighIn, {
     message: "Future dates aren't allowed",
     path: ["date"],
   })
-
-export const goalInput = createInsertSchema(goalSettings, {
-  goalKg: () => kg.nullable(),
-  rateKgPerWeek: () =>
-    z.coerce
-      .number({ error: "Enter a rate between 0.1 and 2 kg per week" })
-      .min(0.1, "Enter a rate between 0.1 and 2 kg per week")
-      .max(2, "Enter a rate between 0.1 and 2 kg per week"),
-}).pick({ goalKg: true, rateKgPerWeek: true })
