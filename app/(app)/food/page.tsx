@@ -1,14 +1,19 @@
 import type { Metadata } from "next"
 
+import { listDay } from "@/lib/food/queries"
+import { getToday } from "@/lib/food/today"
 import { getRecipes } from "@/lib/recipes/source"
 import { requireSession } from "@/lib/session"
-import { RecipeList } from "./recipe-list"
+import { FoodView } from "./food-view"
 
 export const metadata: Metadata = { title: "Food · Laozi" }
 
 export default async function FoodPage() {
   await requireSession()
-  const result = await getRecipes()
+  const [result, today] = await Promise.all([
+    getRecipes(),
+    getToday().then(listDay),
+  ])
   if (!result.ok) {
     return (
       <p className="py-12 text-center text-muted-foreground">
@@ -16,5 +21,7 @@ export default async function FoodPage() {
       </p>
     )
   }
-  return <RecipeList recipes={result.recipes} skipped={result.skipped} />
+  return (
+    <FoodView recipes={result.recipes} skipped={result.skipped} today={today} />
+  )
 }
