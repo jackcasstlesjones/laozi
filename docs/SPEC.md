@@ -116,7 +116,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 
 ## Design system
 
-- shadcn/ui `base-nova` style on Base UI, Tailwind 4 `@theme` tokens in `app/globals.css` (Jack's theme: orange `--primary`, neutral base). Light/dark follow the system (`next-themes`, `defaultTheme="system"`).
+- shadcn/ui `base-nova` style on Base UI, Tailwind 4 `@theme` tokens in `app/globals.css` (Jack's theme, neutral base; `--primary` and `--accent` are amber-orange `oklch(0.76 0.17 62)` with dark-brown text on it, changed from the original burnt orange on 2026-11-03 at Jack's request). Light/dark follow the system (`next-themes`, `defaultTheme="system"`).
 - Type: Inter (`--font-sans`), Geist Mono (`--font-mono`) for numbers in tables where alignment matters.
 - Chart colours from tokens only: line `--primary`, goal and projection lines `--muted-foreground`, dashed.
 - Banned: hard-coded colours outside `globals.css`, a second component library, and styling the same thing twice (extend `components/ui` instead).

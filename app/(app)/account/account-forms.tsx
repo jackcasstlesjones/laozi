@@ -113,7 +113,7 @@ export function ChangePasswordForm() {
           className={
             status.kind === "error"
               ? "text-sm text-destructive"
-              : "text-sm text-primary"
+              : "text-sm text-foreground"
           }
         >
           {status.message}
