@@ -78,6 +78,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 
 - Each recipe row in the list has − and + buttons with today's count between them. + adds one serving to today; − removes one (not below zero).
 - A **Today** card at the top of the Food tab shows today's total kcal and today's items ("2 × Assorted Gyozas · 80 kcal"), each removable.
+- **Mobile (under 768 px):** instead of the card, a total bar (orange-to-yellow gradient) floats at the bottom of the screen ("Today · 3 items · 880 kcal"). Tapping it opens the Today screen (`/food/today`) with the items, the remove buttons and the custom-item form. The recipe list has bottom padding so the bar never covers it.
 - **Custom items:** a name and kcal (whole number, 1–10,000), e.g. "Sausage and mash, 800". They are saved against today only and never become recipes.
 - "Today" is the calendar date in the browser's time zone. At midnight the total starts again from 0; the previous day's entries stay as that day's record. No background job is involved.
 - Each entry stores the name and kcal per serving at the time it was added, so editing or deleting a recipe later doesn't change history.
@@ -119,7 +120,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - `/login` — email + password.
 - `/` → redirects to `/weight`.
 - `/weight` — chart + entries list (side by side on wide screens), record button, goal settings, Export.
-- `/food` — Today card, searchable, sortable recipe list with +/− counters. `/food/[slug]` — recipe detail. `/food/history` — past days.
+- `/food` — Today card, searchable, sortable recipe list with +/− counters. `/food/[slug]` — recipe detail. `/food/today` — today's items (the mobile bar opens it). `/food/history` — past days.
 - `/account` — change password (from the header).
 - `/api/auth/*` — Better Auth. `/api/health` — DB ping.
 
