@@ -2,7 +2,7 @@
 
 ## Where we are
 
-- **2026-11-03:** M0 done. Live at https://laoziloss.vercel.app (API only so far; the home page is still the scaffold). Next: M1 shell + login.
+- **2026-11-03:** M0–M6 features built and live at https://laoziloss.vercel.app: login, Weight (chart, entries, goal, export, 157 imported weigh-ins), Food (recipes from GitHub), Account. Next: polish (loading/error states, icon) and anything Jack finds while testing.
 - **Open questions for Jack:** none.
 
 ## M0 Foundations
@@ -15,20 +15,20 @@
 
 ## M1 Design system and shell
 
-- [ ] App shell: header (title, account link, sign out), Weight/Food tabs, responsive container; system light/dark
-- [ ] Login page ("Incorrect email or password"), proxy redirect for signed-out users, session check in the data layer
+- [x] App shell: header (title, account link, sign out), Weight/Food tabs, responsive container; system light/dark
+- [x] Login page ("Incorrect email or password"), proxy redirect for signed-out users, session check in the data layer
 
 ## M2 Walking skeleton: weigh-ins
 
-- [ ] Record a weigh-in (date defaults to today, no future dates, 30–300 validation + message, replace-with-confirmation)
-- [ ] Entries list newest first ("Tue, Nov 3, 2026", "85.6 kg"), edit, delete with confirmation
+- [x] Record a weigh-in (date defaults to today, no future dates, 30–300 validation + message, replace-with-confirmation)
+- [x] Entries list newest first ("Tue, Nov 3, 2026", "85.6 kg"), edit, delete with confirmation
 
 ## M3 Chart engine, then chart
 
-- [ ] Pure functions: range windows (1W…All), y-domain with goal + padding, projection line + All-range extension, nearest-point lookup — tested
-- [ ] Chart UI: right y-axis, date axis, hover/tap tooltip, hollow latest marker, dashed goal line with bold label, projection, empty and single-point states
-- [ ] Goal settings (goal kg, target rate default 0.5)
-- [ ] Export markdown + Copy
+- [x] Pure functions: range windows (1W…All), y-domain with goal + padding, projection line + All-range extension, nearest-point lookup — tested
+- [x] Chart UI: right y-axis, date axis, hover/tap tooltip, hollow latest marker, dashed goal line with bold label, projection, empty and single-point states
+- [x] Goal settings (goal kg, target rate default 0.5)
+- [x] Export markdown + Copy
 
 ## M4 Lose It import
 
@@ -38,11 +38,11 @@
 
 ## M5 Food
 
-- [ ] Recipe schema (Zod) + GitHub fetcher with 5-minute cache, skipped-file count — tested
-- [ ] Recipe list: search, sort by name/kcal, kcal + macros; recipe detail
+- [x] Recipe schema (Zod) + GitHub fetcher with 5-minute cache, skipped-file count — tested
+- [x] Recipe list: search, sort by name/kcal, kcal + macros; recipe detail
 - [x] `claude-recipes`: schema in its CLAUDE.md, files migrated, legacy gyoza file moved to `legacy/` (done by Jack)
 
 ## M6 Account and polish
 
-- [ ] Change password (current, new ≥12, confirm; revokes other sessions)
+- [x] Change password (current, new ≥12, confirm; revokes other sessions)
 - [ ] Polish pass: loading/error states, metadata, favicon

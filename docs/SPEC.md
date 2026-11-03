@@ -145,5 +145,8 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - 2026-11-03: Rows marked `Deleted=true` in the Lose It export are not imported; the import reports them alongside the skipped rows.
 - 2026-11-03: Single-user app: app tables have no `user_id`.
 - 2026-11-03: No Cache Components; recipes use `unstable_cache`/fetch revalidate (300 s).
+- 2026-11-03: On 1W–1Y the chart window ends today plus a quarter of the window's length when a goal is set, so the projection has room; on All it runs from the first entry to the day the projection reaches the goal (capped at 3 years).
+- 2026-11-03: Future dates are checked against the browser's local date (sent with each save).
+- 2026-11-03: The chart is hand-built SVG (no chart library).
 - 2026-11-03: Local Postgres on port 5442 (`laozi` and `laozi_test` databases).
 - 2026-11-03: Production domain is `laoziloss.vercel.app`; `BETTER_AUTH_URL` set to it. (`laozi-bay.vercel.app` also still resolves.)
