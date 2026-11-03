@@ -15,6 +15,7 @@ const fontMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Laozi",
   description: "Weight and recipes",
+  appleWebApp: { capable: true, title: "Laozi", statusBarStyle: "default" },
 }
 
 export const viewport: Viewport = {

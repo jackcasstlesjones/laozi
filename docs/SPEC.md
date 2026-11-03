@@ -161,5 +161,6 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - 2026-11-03: The chart is hand-built SVG (no chart library).
 - 2026-11-03: Calorie counting groups entries by local calendar date (time zone from a `tz` cookie set by the browser); midnight "reset" is just a new date, not a job.
 - 2026-11-03: Food log entries snapshot name and kcal, so recipes can stay in GitHub without breaking history.
+- 2026-11-03: Installable PWA: `app/manifest.ts` (standalone, start `/`, dark splash `#0a0a0a`), PNG icons generated from the brand mark by `scripts/generate-icons.mjs`; the proxy lets the manifest and icons through unauthenticated.
 - 2026-11-03: Local Postgres on port 5442 (`laozi` and `laozi_test` databases).
 - 2026-11-03: Production domain is `laoziloss.vercel.app`; `BETTER_AUTH_URL` set to it. (`laozi-bay.vercel.app` also still resolves.)
