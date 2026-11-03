@@ -2,7 +2,7 @@
 
 ## Where we are
 
-- **2026-11-03:** M0–M6 features built and live at https://laoziloss.vercel.app: login, Weight (chart, entries, goal, export, 157 imported weigh-ins), Food (recipes from GitHub), Account. Next: anything Jack finds while testing. Git-push deploys are disabled on the Vercel project (`createDeployments: disabled`); until Jack re-enables them, deploy with `vercel deploy --prod`.
+- **2026-11-03:** M0–M6 features built and live at https://laoziloss.vercel.app: login, Weight (chart, entries, goal, export, 157 imported weigh-ins), Food (recipes from GitHub), Account. Next: anything Jack finds while testing. Pushes to `main` deploy via git (`gitProviderOptions.createDeployments` only controls GitHub deployment statuses, not builds).
 - **Open questions for Jack:** none.
 
 ## M0 Foundations
