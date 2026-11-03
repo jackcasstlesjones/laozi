@@ -10,12 +10,12 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 
 ### Weigh-ins
 
-- An entry is a date plus a weight in kg, with one decimal place (e.g. 85.6).
+- An entry is a date plus a weight in kg, to the nearest 0.05 kg (e.g. 85.6 or 85.65).
 - One entry per date. Recording a weight on a date that already has one replaces it, after a confirmation.
 - The date defaults to today. Future dates are not allowed.
 - The weight must be between 30 and 300 kg. Otherwise show "Enter a weight between 30 and 300 kg".
-- Entries are listed newest first, showing the date (e.g. "Tue, Nov 3, 2026") and the weight (e.g. "85.5 kg").
-- **Display rounding:** weights are stored to one decimal place, but everywhere the UI shows a weight (list, chart tooltip and axis, goal label) it is rounded to the nearest 0.25 kg and shown with at least one decimal: "86.0 kg", "85.5 kg", "85.75 kg". A stored 85.6 shows as "85.5 kg".
+- Entries are listed newest first, showing the date (e.g. "Tue, Nov 3, 2026") and the weight (e.g. "85.6 kg").
+- **Precision:** weights and the goal are stored to the nearest 0.05 kg and shown exactly as stored, with at least one decimal: "86.0 kg", "85.6 kg", "85.65 kg".
 - Each entry can be edited or deleted. Deleting asks for confirmation.
 
 ### Chart
@@ -33,8 +33,9 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 ### Importing Lose It history
 
 - A one-off import of Lose It's CSV export, run once when the app is set up. There is no import screen in the app.
-- It reads each row's date and weight. Weights recorded in lb are converted to kg and rounded to 1 decimal place.
+- It reads each row's date and weight. Weights recorded in lb are converted to kg, and all weights are rounded to the nearest 0.05 kg.
 - Where several rows share a date, the last one wins. If an entry already exists for a date, the import skips that row.
+- `--refresh` also restores precision on existing entries whose value is within 0.05 kg of the CSV's. Entries edited further away than that are left alone.
 - When it finishes, it reports how many entries were imported, how many were skipped, and the row numbers of any rows it couldn't read.
 
 ### Goal settings
@@ -153,6 +154,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - 2026-11-03: Drizzle pinned to `1.0.0-rc.5` for `drizzle-orm/zod`; Better Auth 1.7 supports it.
 - 2026-11-03: Weights stored as `numeric(4,1)` read as JS numbers; dates as `date` strings (`YYYY-MM-DD`), "today" is the user's local date sent from the browser.
 - 2026-11-03: Weights display rounded to the nearest 0.25 kg (Jack's request); storage stays at one decimal, so nothing is lost. The markdown export uses the stored values.
+- 2026-11-03: Weights and the goal are now stored as `numeric(5,2)` to the nearest 0.05 kg and shown as stored (Jack's request), replacing the one-decimal storage and 0.25 kg display rounding above. The goal shares the weight validator, so it moved too.
 - 2026-11-03: Rows marked `Deleted=true` in the Lose It export are not imported; the import reports them alongside the skipped rows.
 - 2026-11-03: Single-user app: app tables have no `user_id`.
 - 2026-11-03: No Cache Components; recipes use `unstable_cache`/fetch revalidate (300 s).
