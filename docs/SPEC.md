@@ -143,3 +143,4 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 - 2026-11-03: Single-user app: app tables have no `user_id`.
 - 2026-11-03: No Cache Components; recipes use `unstable_cache`/fetch revalidate (300 s).
 - 2026-11-03: Local Postgres on port 5442 (`laozi` and `laozi_test` databases).
+- 2026-11-03: Production domain is `laozi-bay.vercel.app` (`laozi.vercel.app` was taken); `BETTER_AUTH_URL` set to it.

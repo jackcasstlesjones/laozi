@@ -2,7 +2,7 @@
 
 ## Where we are
 
-- **2026-11-03:** M0 in progress. Local stack, auth and the DB are working; next is GitHub + Vercel + Neon and the first live deploy.
+- **2026-11-03:** M0 done. Live at https://laozi-bay.vercel.app (API only so far; the home page is still the scaffold). Next: M1 shell + login.
 - **Open questions for Jack:** where the Lose It CSV export lives (needed for M4); go-ahead to migrate the `claude-recipes` repo files to the new schema (M5).
 
 ## M0 Foundations
@@ -10,8 +10,8 @@
 - [x] Env validation, Docker Postgres, Drizzle client + config, gates script
 - [x] Schema: weigh-ins, goal settings, Better Auth tables + constraint tests
 - [x] Better Auth (sign-up disabled, 30-day sessions, DB rate limit) + idempotent seed of the single account
-- [ ] GitHub repo, Vercel project (lhr1), Neon via Marketplace, production secrets
-- [ ] First production deploy runs migrate → seed → build; `/api/health` green
+- [x] GitHub repo, Vercel project (lhr1), Neon via Marketplace, production secrets
+- [x] First production deploy runs migrate → seed → build; `/api/health` green
 
 ## M1 Design system and shell
 
