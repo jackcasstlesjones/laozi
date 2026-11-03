@@ -12,10 +12,12 @@ export function FoodView({
   recipes,
   skipped,
   today,
+  limit,
 }: {
   recipes: Recipe[]
   skipped: number
   today: LogEntry[]
+  limit: number | null
 }) {
   const log = useFoodLog(today)
 
@@ -37,7 +39,7 @@ export function FoodView({
 
       {/* Desktop: Today sits to the right and stays in view */}
       <aside className="sticky top-20 hidden flex-col gap-3 md:flex">
-        <TodaySummary entries={log.entries} />
+        <TodaySummary entries={log.entries} limit={limit} />
         <Card>
           <CardContent>
             <TodayPanel log={log} />
@@ -52,6 +54,7 @@ export function FoodView({
       <div className="fixed inset-x-0 bottom-0 z-20 px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden">
         <TodaySummary
           entries={log.entries}
+          limit={limit}
           href="/food/today"
           className="mx-auto max-w-2xl shadow-lg transition-transform active:scale-[0.98]"
         />

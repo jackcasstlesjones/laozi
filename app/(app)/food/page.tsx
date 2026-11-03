@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { listDay } from "@/lib/food/queries"
 import { getToday } from "@/lib/food/today"
 import { getRecipes } from "@/lib/recipes/source"
+import { getSettings } from "@/lib/settings/queries"
 import { requireSession } from "@/lib/session"
 import { FoodView } from "./food-view"
 
@@ -10,9 +11,10 @@ export const metadata: Metadata = { title: "Food · Laozi" }
 
 export default async function FoodPage() {
   await requireSession()
-  const [result, today] = await Promise.all([
+  const [result, today, settings] = await Promise.all([
     getRecipes(),
     getToday().then(listDay),
+    getSettings(),
   ])
   if (!result.ok) {
     return (
@@ -22,6 +24,11 @@ export default async function FoodPage() {
     )
   }
   return (
-    <FoodView recipes={result.recipes} skipped={result.skipped} today={today} />
+    <FoodView
+      recipes={result.recipes}
+      skipped={result.skipped}
+      today={today}
+      limit={settings.dailyKcalLimit}
+    />
   )
 }

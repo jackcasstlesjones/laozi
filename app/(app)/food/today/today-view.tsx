@@ -9,7 +9,13 @@ import { HistoryLink, TodaySummary } from "../today-items"
 import { TodayPanel } from "../today-panel"
 import { useFoodLog } from "../use-food-log"
 
-export function TodayView({ today }: { today: LogEntry[] }) {
+export function TodayView({
+  today,
+  limit,
+}: {
+  today: LogEntry[]
+  limit: number | null
+}) {
   const log = useFoodLog(today)
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
@@ -23,7 +29,7 @@ export function TodayView({ today }: { today: LogEntry[] }) {
         </Link>
         <HistoryLink />
       </div>
-      <TodaySummary entries={log.entries} />
+      <TodaySummary entries={log.entries} limit={limit} />
       <TodayPanel log={log} />
     </div>
   )

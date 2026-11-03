@@ -60,3 +60,12 @@ export function recipeCounts(entries: LogEntry[]): Record<string, number> {
   for (const e of entries) if (e.recipeSlug) counts[e.recipeSlug] = e.quantity
   return counts
 }
+
+/** Progress against the daily limit, or null when no limit is set. */
+export function limitProgress(total: number, limit: number | null) {
+  if (!limit) return null
+  return {
+    percent: Math.min(100, (total / limit) * 100),
+    over: Math.max(0, total - limit),
+  }
+}

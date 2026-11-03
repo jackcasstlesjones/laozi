@@ -4,6 +4,7 @@ import {
   dateInTimeZone,
   dayTotal,
   isValidTimeZone,
+  limitProgress,
   recipeCounts,
   summariseDays,
   type LogEntry,
@@ -77,5 +78,18 @@ describe("recipeCounts", () => {
         e({ name: "custom" }),
       ])
     ).toEqual({ gyozas: 3 })
+  })
+})
+
+describe("limitProgress", () => {
+  it("is null without a limit", () => {
+    expect(limitProgress(880, null)).toBeNull()
+  })
+  it("gives the share of the limit used", () => {
+    expect(limitProgress(500, 2000)).toEqual({ percent: 25, over: 0 })
+    expect(limitProgress(0, 2000)).toEqual({ percent: 0, over: 0 })
+  })
+  it("caps at 100% and reports how far over", () => {
+    expect(limitProgress(2120, 2000)).toEqual({ percent: 100, over: 120 })
   })
 })

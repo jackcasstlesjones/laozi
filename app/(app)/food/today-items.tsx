@@ -2,7 +2,12 @@ import { ChevronRight, History, X } from "lucide-react"
 import Link from "next/link"
 
 import { Button, buttonVariants } from "@/components/ui/button"
-import { dayTotal, entryTotal, type LogEntry } from "@/lib/food/log"
+import {
+  dayTotal,
+  entryTotal,
+  limitProgress,
+  type LogEntry,
+} from "@/lib/food/log"
 import { cn } from "@/lib/utils"
 
 export function formatKcal(n: number) {
@@ -10,32 +15,66 @@ export function formatKcal(n: number) {
 }
 
 const SUMMARY_CLASS =
-  "flex h-14 items-center gap-3 rounded-2xl bg-chart-2 px-4 text-primary-foreground"
+  "flex flex-col justify-center gap-2 rounded-2xl bg-chart-2 px-4 py-3 text-primary-foreground"
 
 /**
- * The amber (--chart-2) "Today · n items · total" bar. A link when `href` is given
- * (mobile floating bar), otherwise a static header (desktop, Today screen).
+ * The amber (--chart-2) "Today · total / limit" bar with a progress bar when a
+ * daily limit is set. A link when `href` is given (mobile floating bar),
+ * otherwise a static header (desktop, Today screen). No animations.
  */
 export function TodaySummary({
   entries,
+  limit,
   href,
   className,
 }: {
   entries: LogEntry[]
+  limit: number | null
   href?: string
   className?: string
 }) {
+  const total = dayTotal(entries)
   const items = entries.reduce((n, e) => n + e.quantity, 0)
+  const progress = limitProgress(total, limit)
   const content = (
     <>
-      <span className="font-medium">Today</span>
-      <span className="text-sm opacity-80">
-        {items} {items === 1 ? "item" : "items"}
-      </span>
-      <span className="ml-auto text-lg font-semibold tabular-nums">
-        {formatKcal(dayTotal(entries))} kcal
-      </span>
-      {href && <ChevronRight className="size-5" />}
+      <div className="flex items-center gap-3">
+        <span className="font-medium">Today</span>
+        <span className="text-sm opacity-80">
+          {progress?.over
+            ? `${formatKcal(progress.over)} kcal over`
+            : `${items} ${items === 1 ? "item" : "items"}`}
+        </span>
+        <span className="ml-auto text-lg font-semibold tabular-nums">
+          {formatKcal(total)}
+          {limit && (
+            <span className="font-normal opacity-70">
+              {" "}
+              / {formatKcal(limit)}
+            </span>
+          )}{" "}
+          kcal
+        </span>
+        {href && <ChevronRight className="size-5" />}
+      </div>
+      {progress && limit && (
+        <div
+          role="progressbar"
+          aria-label="Today's calories against your daily limit"
+          aria-valuemin={0}
+          aria-valuemax={limit}
+          aria-valuenow={total}
+          className="h-2 overflow-hidden rounded-full bg-primary-foreground/15"
+        >
+          <div
+            className={cn(
+              "h-full rounded-full",
+              progress.over ? "bg-destructive" : "bg-primary-foreground"
+            )}
+            style={{ width: `${progress.percent}%` }}
+          />
+        </div>
+      )}
     </>
   )
   return href ? (
