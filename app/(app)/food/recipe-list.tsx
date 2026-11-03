@@ -96,7 +96,7 @@ export function RecipeList({
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/food/${r.slug}`}
-                    className="inline-block max-w-full truncate align-top font-medium underline decoration-muted-foreground/50 underline-offset-4 hover:decoration-foreground"
+                    className="inline-block max-w-full truncate pb-0.5 align-top font-medium underline decoration-muted-foreground underline-offset-2 hover:decoration-foreground"
                   >
                     {r.name}
                   </Link>
