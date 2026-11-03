@@ -22,8 +22,8 @@ export function FoodView({
   const log = useFoodLog(today)
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-6 pb-24 md:grid-cols-[minmax(0,1fr)_20rem] md:items-start md:pb-0">
-      <div className="flex flex-col gap-4">
+    <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 pb-24 md:grid-cols-[minmax(0,1fr)_20rem] md:items-start md:pb-0">
+      <div className="flex min-w-0 flex-col gap-4">
         {log.error && (
           <p role="alert" className="text-sm text-destructive md:hidden">
             {log.error}
@@ -38,7 +38,7 @@ export function FoodView({
       </div>
 
       {/* Desktop: Today sits to the right and stays in view */}
-      <aside className="sticky top-20 hidden flex-col gap-3 md:flex">
+      <aside className="sticky top-20 hidden min-w-0 flex-col gap-3 md:flex">
         <TodaySummary entries={log.entries} limit={limit} />
         <Card>
           <CardContent>
