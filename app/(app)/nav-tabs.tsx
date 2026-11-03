@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 const TABS = [
-  { href: "/weight", label: "Weight" },
   { href: "/food", label: "Food" },
+  { href: "/weight", label: "Weight" },
 ]
 
 export function NavTabs() {

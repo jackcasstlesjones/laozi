@@ -7,7 +7,7 @@ import { LoginForm } from "./login-form"
 export const metadata: Metadata = { title: "Log in · Laozi" }
 
 export default async function LoginPage() {
-  if (await getSession()) redirect("/weight")
+  if (await getSession()) redirect("/food")
   return (
     <main className="flex min-h-svh items-center justify-center p-6">
       <div className="w-full max-w-sm">

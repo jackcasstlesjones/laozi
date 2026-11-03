@@ -21,7 +21,7 @@ export default async function AppLayout({
       <header className="sticky top-0 z-10 border-b bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4">
           <Link
-            href="/weight"
+            href="/food"
             className="font-heading text-lg font-semibold tracking-tight"
           >
             Laozi

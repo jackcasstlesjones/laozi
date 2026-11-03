@@ -4,7 +4,7 @@ Laozi is a personal replacement for the two Lose It features Jack actually uses:
 
 ## Navigation
 
-Two tabs: **Weight** and **Food**. Account settings are reached from the header.
+Two tabs: **Food** and **Weight**. Food is the landing page. Account settings are reached from the header.
 
 ## Weight tab
 
@@ -120,7 +120,7 @@ Two tabs: **Weight** and **Food**. Account settings are reached from the header.
 ## Information architecture
 
 - `/login` — email + password.
-- `/` → redirects to `/weight`.
+- `/` → redirects to `/food`.
 - `/weight` — chart + entries list (side by side on wide screens), record button, Export.
 - `/food` — Today card, searchable, sortable recipe list with +/− counters. `/food/[slug]` — recipe detail. `/food/today` — today's items (the mobile bar opens it). `/food/history` — past days.
 - `/account` — Settings (from the header): goal, daily calorie limit, change password.

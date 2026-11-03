@@ -33,7 +33,7 @@ export function LoginForm() {
       )
       return
     }
-    router.replace("/weight")
+    router.replace("/food")
     router.refresh()
   }
 
