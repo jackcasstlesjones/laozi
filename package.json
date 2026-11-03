@@ -15,7 +15,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
     "test": "vitest run",
-    "gates": "bash scripts/gates.sh"
+    "gates": "bash scripts/gates.sh",
+    "import:loseit": "tsx --env-file-if-exists=.env.local scripts/import-loseit.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
