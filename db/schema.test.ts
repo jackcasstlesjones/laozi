@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 
 import { testDb } from "@/tests/db"
-import { goalSettings, weighIn } from "./schema"
+import { foodLog, goalSettings, weighIn } from "./schema"
 
 let ctx: Awaited<ReturnType<typeof testDb>>
 beforeAll(async () => {
@@ -45,5 +45,56 @@ describe("goal_settings constraints", () => {
     const [row] = await ctx.db.select().from(goalSettings)
     expect(row.rateKgPerWeek).toBe(0.5)
     expect(row.goalKg).toBeNull()
+  })
+})
+
+describe("food_log constraints", () => {
+  it("allows one recipe row per date", async () => {
+    await ctx.db.insert(foodLog).values({
+      date: "2026-11-03",
+      recipeSlug: "gyozas",
+      name: "Gyozas",
+      kcal: 40,
+    })
+    await expect(
+      ctx.db.insert(foodLog).values({
+        date: "2026-11-03",
+        recipeSlug: "gyozas",
+        name: "Gyozas",
+        kcal: 40,
+      })
+    ).rejects.toThrow()
+    await ctx.db.insert(foodLog).values({
+      date: "2026-11-04",
+      recipeSlug: "gyozas",
+      name: "Gyozas",
+      kcal: 40,
+    })
+  })
+  it("allows many custom rows per date, even with the same name", async () => {
+    await ctx.db
+      .insert(foodLog)
+      .values({ date: "2026-11-03", name: "Sausage and mash", kcal: 800 })
+    await ctx.db
+      .insert(foodLog)
+      .values({ date: "2026-11-03", name: "Sausage and mash", kcal: 800 })
+  })
+  it("rejects bad kcal, quantity and blank names", async () => {
+    await expect(
+      ctx.db.insert(foodLog).values({ date: "2026-11-03", name: "x", kcal: -1 })
+    ).rejects.toThrow()
+    await expect(
+      ctx.db
+        .insert(foodLog)
+        .values({ date: "2026-11-03", name: "x", kcal: 10001 })
+    ).rejects.toThrow()
+    await expect(
+      ctx.db
+        .insert(foodLog)
+        .values({ date: "2026-11-03", name: "x", kcal: 1, quantity: 0 })
+    ).rejects.toThrow()
+    await expect(
+      ctx.db.insert(foodLog).values({ date: "2026-11-03", name: "  ", kcal: 1 })
+    ).rejects.toThrow()
   })
 })

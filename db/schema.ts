@@ -10,6 +10,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core"
 
 // ---------------------------------------------------------------------------
@@ -140,5 +141,32 @@ export const goalSettings = pgTable(
       "goal_settings_rate_range",
       sql`${t.rateKgPerWeek} > 0 and ${t.rateKgPerWeek} <= 2`
     ),
+  ]
+)
+
+/**
+ * Calories eaten, per local calendar date. Recipe rows (recipe_slug set) hold a
+ * count per day; custom rows (recipe_slug null) are one-offs. name and kcal are
+ * snapshots taken when the entry was added.
+ */
+export const foodLog = pgTable(
+  "food_log",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    date: date("date", { mode: "string" }).notNull(),
+    recipeSlug: text("recipe_slug"),
+    name: text("name").notNull(),
+    kcal: integer("kcal").notNull(),
+    quantity: integer("quantity").notNull().default(1),
+    ...timestamps,
+  },
+  (t) => [
+    index("food_log_date_idx").on(t.date),
+    uniqueIndex("food_log_date_recipe_unique")
+      .on(t.date, t.recipeSlug)
+      .where(sql`${t.recipeSlug} is not null`),
+    check("food_log_kcal_range", sql`${t.kcal} between 0 and 10000`),
+    check("food_log_quantity_positive", sql`${t.quantity} between 1 and 1000`),
+    check("food_log_name_not_blank", sql`length(trim(${t.name})) > 0`),
   ]
 )
