@@ -1,11 +1,12 @@
 "use client"
 
-import { ChevronLeft, History } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 
 import { buttonVariants } from "@/components/ui/button"
 import type { LogEntry } from "@/lib/food/log"
-import { TodayItems, TodayTotal } from "../today-items"
+import { HistoryLink, TodaySummary } from "../today-items"
+import { TodayPanel } from "../today-panel"
 import { useFoodLog } from "../use-food-log"
 
 export function TodayView({ today }: { today: LogEntry[] }) {
@@ -20,32 +21,10 @@ export function TodayView({ today }: { today: LogEntry[] }) {
           <ChevronLeft data-icon="inline-start" />
           Food
         </Link>
-        <Link
-          href="/food/history"
-          className={buttonVariants({ variant: "ghost", size: "sm" })}
-        >
-          <History data-icon="inline-start" />
-          History
-        </Link>
+        <HistoryLink />
       </div>
-      <div>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">
-          Today
-        </h1>
-        <TodayTotal entries={log.entries} />
-      </div>
-      {log.entries.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          Nothing logged yet today.
-        </p>
-      )}
-      <TodayItems
-        entries={log.entries}
-        error={log.error}
-        onRemove={log.remove}
-        onAdd={log.add}
-        onError={log.setError}
-      />
+      <TodaySummary entries={log.entries} />
+      <TodayPanel log={log} />
     </div>
   )
 }

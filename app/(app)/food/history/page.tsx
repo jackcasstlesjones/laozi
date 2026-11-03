@@ -10,11 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { entryTotal, summariseDays } from "@/lib/food/log"
+import { summariseDays } from "@/lib/food/log"
 import { listAll } from "@/lib/food/queries"
 import { getToday } from "@/lib/food/today"
 import { requireSession } from "@/lib/session"
 import { formatEntryDate } from "@/lib/weight/dates"
+import { EntryList, formatKcal } from "../today-items"
 
 export const metadata: Metadata = { title: "Calorie history · Laozi" }
 
@@ -54,27 +55,11 @@ export default async function HistoryPage() {
                 {day.date === today ? "Today" : formatEntryDate(day.date)}
               </CardTitle>
               <CardAction className="font-semibold tabular-nums">
-                {day.total.toLocaleString("en-GB")} kcal
+                {formatKcal(day.total)} kcal
               </CardAction>
             </CardHeader>
             <CardContent>
-              <ul className="-my-1 divide-y text-sm">
-                {day.entries.map((e) => (
-                  <li key={e.id} className="flex items-center gap-2 py-1.5">
-                    <span className="min-w-0 flex-1 truncate">
-                      {e.quantity > 1 && (
-                        <span className="text-muted-foreground tabular-nums">
-                          {e.quantity} ×{" "}
-                        </span>
-                      )}
-                      {e.name}
-                    </span>
-                    <span className="text-muted-foreground tabular-nums">
-                      {entryTotal(e).toLocaleString("en-GB")} kcal
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <EntryList entries={day.entries} />
             </CardContent>
           </Card>
         ))
