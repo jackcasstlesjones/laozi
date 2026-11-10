@@ -6,6 +6,7 @@ import { notFound } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { variantsOf } from "@/lib/recipes/schema"
 import { getRecipes } from "@/lib/recipes/source"
 import { requireSession } from "@/lib/session"
 
@@ -13,17 +14,22 @@ type Props = { params: Promise<{ slug: string }> }
 
 async function findRecipe(slug: string) {
   const result = await getRecipes()
-  return result.ok ? result.recipes.find((r) => r.slug === slug) : undefined
+  if (!result.ok) return {}
+  const recipe = result.recipes.find((r) => r.slug === slug)
+  return {
+    recipe,
+    variants: recipe ? variantsOf(result.recipes, recipe) : [],
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const recipe = await findRecipe((await params).slug)
+  const { recipe } = await findRecipe((await params).slug)
   return { title: recipe ? `${recipe.name} · Laozi` : "Recipe · Laozi" }
 }
 
 export default async function RecipePage({ params }: Props) {
   await requireSession()
-  const recipe = await findRecipe((await params).slug)
+  const { recipe, variants = [] } = await findRecipe((await params).slug)
   if (!recipe) notFound()
 
   const macros = [
@@ -45,6 +51,25 @@ export default async function RecipePage({ params }: Props) {
         <ChevronLeft data-icon="inline-start" />
         Recipes
       </Link>
+
+      {variants.length > 1 && (
+        <nav aria-label="Recipe version" className="flex self-start">
+          {variants.map((v, i) => (
+            <Link
+              key={v.slug}
+              href={`/food/${v.slug}`}
+              aria-current={v.slug === recipe.slug ? "page" : undefined}
+              className={buttonVariants({
+                variant: v.slug === recipe.slug ? "secondary" : "outline",
+                size: "sm",
+                className: `px-3 capitalize ${i > 0 ? "-ml-px rounded-l-none" : ""} ${i < variants.length - 1 ? "rounded-r-none" : ""}`,
+              })}
+            >
+              {v.variant}
+            </Link>
+          ))}
+        </nav>
+      )}
 
       <div>
         <h1 className="font-heading text-2xl font-semibold tracking-tight">

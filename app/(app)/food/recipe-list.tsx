@@ -10,6 +10,8 @@ import { Toggle } from "@/components/ui/toggle"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   filterAndSort,
+  pickVariant,
+  variantNames,
   type Recipe,
   type RecipeSort,
 } from "@/lib/recipes/schema"
@@ -30,7 +32,9 @@ export function RecipeList({
   const [query, setQuery] = useState("")
   const [sort, setSort] = useState<RecipeSort>("name")
   const [showMacros, setShowMacros] = useState(false)
-  const shown = filterAndSort(recipes, query, sort)
+  const variants = variantNames(recipes)
+  const [variant, setVariant] = useState(variants[0] ?? "")
+  const shown = filterAndSort(pickVariant(recipes, variant), query, sort)
 
   return (
     <div className="flex flex-col gap-4">
@@ -70,6 +74,22 @@ export function RecipeList({
         >
           Macros
         </Toggle>
+        {variants.length > 1 && (
+          <ToggleGroup
+            value={[variant]}
+            onValueChange={(v) => v[0] && setVariant(v[0])}
+            variant="outline"
+            size="sm"
+            spacing={0}
+            aria-label="Recipe version"
+          >
+            {variants.map((v) => (
+              <ToggleGroupItem key={v} value={v} className="px-3 capitalize">
+                {v}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        )}
       </div>
 
       {skipped > 0 && (
@@ -100,6 +120,11 @@ export function RecipeList({
                   >
                     {r.name}
                   </Link>
+                  {r.variant && r.variant !== variant && (
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {r.variant} only
+                    </span>
+                  )}
                   {showMacros && (
                     <Macros
                       macros={r.macros}

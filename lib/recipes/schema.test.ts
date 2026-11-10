@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest"
 
-import { filterAndSort, parseRecipeFiles } from "./schema"
+import {
+  filterAndSort,
+  isRecipePath,
+  parseRecipeFiles,
+  pickVariant,
+  variantNames,
+  variantsOf,
+} from "./schema"
 
 const tuna = {
   name: "Tuna Egg Hash",
@@ -67,5 +74,59 @@ describe("filterAndSort", () => {
       "Tuna Egg Hash"
     )
     expect(filterAndSort(recipes, "pizza", "name")).toEqual([])
+  })
+})
+
+describe("variants", () => {
+  const { recipes } = parseRecipeFiles([
+    { name: "tuna-egg-hash.json", text: JSON.stringify(tuna) },
+    {
+      name: "smashes/ham-egg/basic.json",
+      text: JSON.stringify({ ...tuna, name: "Ham & Egg Smash" }),
+    },
+    {
+      name: "smashes/ham-egg/full.json",
+      text: JSON.stringify({ ...tuna, name: "Ham, Egg & Cress Smash" }),
+    },
+    {
+      name: "smashes/green-goddess/full.json",
+      text: JSON.stringify({ ...tuna, name: "Green Goddess Smash" }),
+    },
+  ])
+
+  it("slugs and groups files in folders as variants", () => {
+    expect(recipes.map((r) => [r.slug, r.group, r.variant])).toEqual([
+      ["tuna-egg-hash", null, null],
+      ["smashes-ham-egg-basic", "smashes/ham-egg", "basic"],
+      ["smashes-ham-egg-full", "smashes/ham-egg", "full"],
+      ["smashes-green-goddess-full", "smashes/green-goddess", "full"],
+    ])
+    expect(variantNames(recipes)).toEqual(["basic", "full"])
+  })
+  it("picks the preferred variant, falling back to what the group has", () => {
+    expect(pickVariant(recipes, "basic").map((r) => r.slug)).toEqual([
+      "tuna-egg-hash",
+      "smashes-ham-egg-basic",
+      "smashes-green-goddess-full",
+    ])
+    expect(pickVariant(recipes, "full").map((r) => r.slug)).toEqual([
+      "tuna-egg-hash",
+      "smashes-ham-egg-full",
+      "smashes-green-goddess-full",
+    ])
+  })
+  it("lists a recipe's variants", () => {
+    expect(variantsOf(recipes, recipes[2]).map((r) => r.variant)).toEqual([
+      "basic",
+      "full",
+    ])
+    expect(variantsOf(recipes, recipes[0])).toEqual([recipes[0]])
+  })
+  it("ignores non-JSON files and folders starting with _ or .", () => {
+    expect(isRecipePath("gyozas.json")).toBe(true)
+    expect(isRecipePath("smashes/ham-egg/full.json")).toBe(true)
+    expect(isRecipePath("_legacy/old.json")).toBe(false)
+    expect(isRecipePath(".github/x.json")).toBe(false)
+    expect(isRecipePath("mush.md")).toBe(false)
   })
 })

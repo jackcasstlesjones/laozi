@@ -54,7 +54,8 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 ### Source
 
 - The source of truth is the public GitHub repo `jackcasstlesjones/claude-recipes`: one JSON file per recipe.
-- The app's server lists the repo's files with one call to GitHub's public API, then downloads each file from `raw.githubusercontent.com`. It caches the results and refreshes them every 5 minutes. No GitHub token is needed while the repo is public. If the repo goes private, add a read-only fine-grained token on the server only.
+- A recipe with versions lives in its own folder, one file per version, e.g. `smashes/ham-egg/basic.json` and `smashes/ham-egg/full.json`. Every `.json` file in a folder is a version of that folder's recipe, named after its file. Folders starting with `_` or `.` are ignored.
+- The app's server lists the repo's files (recursively) with one call to GitHub's public API, then downloads each file from `raw.githubusercontent.com`. It caches the results and refreshes them every 5 minutes. No GitHub token is needed while the repo is public. If the repo goes private, add a read-only fine-grained token on the server only.
 - A file that is invalid JSON or doesn't match the schema is skipped. The app shows how many files were skipped.
 
 ### Schema (to be documented in the repo's CLAUDE.md)
@@ -78,6 +79,8 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 
 - A searchable list of recipes, each showing its name and kcal per serving. Macros are hidden by default; a **Macros** toggle shows them in the list (not remembered between visits).
 - Sort by name or by kcal.
+- When any recipe has versions, a toggle (e.g. **Basic / Full**, the version names sorted, the first selected by default) picks which version each recipe shows in the list (not remembered between visits). A recipe without the selected version shows the one it has, marked e.g. "full only". Each version has its own +/− count.
+- A recipe with versions has a switch at the top of its page linking to the other versions.
 - Opening a recipe shows its ingredients with calories for each, macros, notes and tags.
 - The app has no add, edit or delete for recipes.
 
@@ -172,3 +175,4 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 - 2026-11-03: Installable PWA: `app/manifest.ts` (standalone, start `/`, dark splash `#0a0a0a`), PNG icons generated from the brand mark by `scripts/generate-icons.mjs`; the proxy lets the manifest and icons through unauthenticated.
 - 2026-11-03: Local Postgres on port 5442 (`laozi` and `laozi_test` databases).
 - 2026-11-03: Production domain is `laoziloss.vercel.app`; `BETTER_AUTH_URL` set to it. (`laozi-bay.vercel.app` also still resolves.)
+- 2026-11-10: Recipes can have versions (folder per recipe, file per version); the list has a version toggle. Recipes are listed with the git trees API (`recursive=1`) instead of the contents API.

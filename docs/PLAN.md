@@ -41,6 +41,7 @@
 - [x] Recipe schema (Zod) + GitHub fetcher with 5-minute cache, skipped-file count — tested
 - [x] Recipe list: search, sort by name/kcal, kcal + macros; recipe detail
 - [x] `claude-recipes`: schema in its CLAUDE.md, files migrated, legacy gyoza file moved to `legacy/` (done by Jack)
+- [x] Recipe versions: folder per recipe, Basic/Full toggle in the list and a switch on the recipe page — tested
 
 ## M7 Calorie counting
 

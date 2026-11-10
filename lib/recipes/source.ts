@@ -2,28 +2,24 @@ import "server-only"
 import { cache } from "react"
 import { z } from "zod"
 
-import { parseRecipeFiles, type Recipe } from "./schema"
+import { isRecipePath, parseRecipeFiles, type Recipe } from "./schema"
 
 const REPO = "jackcasstlesjones/claude-recipes"
 const REVALIDATE = 300 // seconds
 
-const listingSchema = z.array(
-  z.object({
-    name: z.string(),
-    type: z.string(),
-    download_url: z.string().nullable(),
-  })
-)
+const treeSchema = z.object({
+  tree: z.array(z.object({ path: z.string(), type: z.string() })),
+})
 
 export type RecipesResult =
   | { ok: true; recipes: Recipe[]; skipped: number }
   | { ok: false; error: string }
 
-/** One GitHub API call to list the repo root, then one raw download per .json file. Cached 5 min. */
+/** One GitHub API call to list the repo tree, then one raw download per recipe file. Cached 5 min. */
 export const getRecipes = cache(async (): Promise<RecipesResult> => {
   try {
     const res = await fetch(
-      `https://api.github.com/repos/${REPO}/contents?ref=main`,
+      `https://api.github.com/repos/${REPO}/git/trees/main?recursive=1`,
       {
         headers: {
           Accept: "application/vnd.github+json",
@@ -33,21 +29,18 @@ export const getRecipes = cache(async (): Promise<RecipesResult> => {
       }
     )
     if (!res.ok) return { ok: false, error: `GitHub responded ${res.status}` }
-    const files = listingSchema
+    const paths = treeSchema
       .parse(await res.json())
-      .filter(
-        (f) =>
-          f.type === "file" &&
-          f.name.toLowerCase().endsWith(".json") &&
-          f.download_url
-      )
+      .tree.filter((f) => f.type === "blob" && isRecipePath(f.path))
+      .map((f) => f.path)
 
     const texts = await Promise.all(
-      files.map(async (f) => {
-        const r = await fetch(f.download_url!, {
-          next: { revalidate: REVALIDATE },
-        })
-        return { name: f.name, text: r.ok ? await r.text() : "" }
+      paths.map(async (path) => {
+        const r = await fetch(
+          `https://raw.githubusercontent.com/${REPO}/main/${encodeURI(path)}`,
+          { next: { revalidate: REVALIDATE } }
+        )
+        return { name: path, text: r.ok ? await r.text() : "" }
       })
     )
     return { ok: true, ...parseRecipeFiles(texts) }
