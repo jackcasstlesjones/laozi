@@ -51,6 +51,7 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 
 - A compact version of the weight chart (72 px tall) always sits in a card across the top of the tab, showing the last 14 days: the line, a dot per weigh-in, the hollow latest marker and both axes' labels (fewer of them than the full chart), with the y-scale ending on the ticks around the data so the plot sits tight against the date labels. It has no goal or projection lines, so the recent trend fills the height. Clicking or tapping it opens the Weight tab.
 - If there is an entry from before the 14 days, the line comes in from the left edge heading toward the first entry inside them.
+- To the left of the chart, separated by a thin divider: the weight change over the 14 days with an up or down arrow (e.g. "↓ 0.8 kg" over "2 weeks"), worked out as on the Weight tab. Hidden with fewer than two entries in the 14 days.
 
 ### Source
 
