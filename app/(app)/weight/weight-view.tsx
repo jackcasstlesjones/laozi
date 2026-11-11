@@ -1,14 +1,20 @@
 "use client"
 
-import { Pencil, Plus, Trash2 } from "lucide-react"
+import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from "lucide-react"
 import { useMemo, useState, useSyncExternalStore } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
-import { DEFAULT_RANGE, RANGES, type Range } from "@/lib/weight/chart"
-import { formatEntryDate, localToday } from "@/lib/weight/dates"
+import {
+  changeOver,
+  DEFAULT_RANGE,
+  RANGE_LABELS,
+  RANGES,
+  type Range,
+} from "@/lib/weight/chart"
+import { formatEntryDate, localToday, toDay } from "@/lib/weight/dates"
 import { formatKg } from "@/lib/weight/kg"
 import type { Settings } from "@/lib/settings/queries"
 import type { WeighInRow } from "@/lib/weight/queries"
@@ -45,6 +51,10 @@ export function WeightView({
         : { goalKg: goal.goalKg, rateKgPerWeek: goal.rateKgPerWeek },
     [goal]
   )
+  const change = useMemo(
+    () => changeOver(range, entries, toDay(today)),
+    [range, entries, today]
+  )
 
   const recordButton = (className?: string) => (
     <Button
@@ -59,42 +69,62 @@ export function WeightView({
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
-        <Card>
-          <CardHeader className="flex flex-wrap items-center justify-between gap-2">
-            <CardTitle>Weight</CardTitle>
-            {entries.length > 0 && (
-              <ToggleGroup
-                value={[range]}
-                onValueChange={(v) => v[0] && setRange(v[0] as Range)}
-                size="sm"
-                variant="outline"
-                spacing={0}
-                aria-label="Chart range"
-              >
-                {RANGES.map((r) => (
-                  <ToggleGroupItem key={r} value={r} className="px-2.5">
-                    {r}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-            )}
-          </CardHeader>
-          <CardContent>
-            {entries.length === 0 ? (
-              <div className="flex h-56 flex-col items-center justify-center gap-4">
-                <p className="text-muted-foreground">No weigh-ins yet</p>
-                {recordButton()}
-              </div>
-            ) : (
-              <WeightChart
-                entries={entries}
-                goal={chartGoal}
-                range={range}
-                today={today}
-              />
-            )}
-          </CardContent>
-        </Card>
+        <div className="flex flex-col gap-4">
+          {entries.length > 0 && (
+            <ToggleGroup
+              value={[range]}
+              onValueChange={(v) => v[0] && setRange(v[0] as Range)}
+              size="sm"
+              variant="outline"
+              spacing={0}
+              aria-label="Chart range"
+              className="w-full"
+            >
+              {RANGES.map((r) => (
+                <ToggleGroupItem key={r} value={r} className="flex-1 px-2.5">
+                  {r}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          )}
+          <Card>
+            <CardHeader className="flex flex-wrap items-center justify-between gap-2">
+              <CardTitle>Weight</CardTitle>
+              {change !== null && (
+                <p className="flex items-center gap-1 text-sm">
+                  {change < 0 ? (
+                    <ArrowDown className="size-4" aria-label="Down" />
+                  ) : change > 0 ? (
+                    <ArrowUp className="size-4" aria-label="Up" />
+                  ) : null}
+                  <span className="font-medium tabular-nums">
+                    {change === 0
+                      ? "No change"
+                      : `${formatKg(Math.abs(change))} kg`}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {RANGE_LABELS[range]}
+                  </span>
+                </p>
+              )}
+            </CardHeader>
+            <CardContent>
+              {entries.length === 0 ? (
+                <div className="flex h-56 flex-col items-center justify-center gap-4">
+                  <p className="text-muted-foreground">No weigh-ins yet</p>
+                  {recordButton()}
+                </div>
+              ) : (
+                <WeightChart
+                  entries={entries}
+                  goal={chartGoal}
+                  range={range}
+                  today={today}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Stacked: between the chart and the entries. Side by side: above both. */}
         {entries.length > 0 &&
