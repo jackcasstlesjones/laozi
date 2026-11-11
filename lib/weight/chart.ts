@@ -8,7 +8,7 @@ export const RANGES = ["1W", "1M", "3M", "6M", "1Y", "All"] as const
 /** Not offered in the selector: the compact chart on the Food tab always shows this. */
 export const TREND_RANGE = "2W"
 export type Range = (typeof RANGES)[number] | typeof TREND_RANGE
-export const DEFAULT_RANGE: Range = "6M"
+export const DEFAULT_RANGE: Range = "1M"
 
 export type Entry = { date: string; weightKg: number }
 export type Goal = { goalKg: number; rateKgPerWeek: number }
@@ -83,6 +83,35 @@ export function windowFor(
         : addMonths(today, -{ "1M": 1, "3M": 3, "6M": 6, "1Y": 12 }[range])
   const future = reach !== null ? Math.round((today - start) * FUTURE_SHARE) : 0
   return { start, end: today + future }
+}
+
+export const RANGE_LABELS: Record<Range, string> = {
+  "1W": "past week",
+  "2W": "past 2 weeks",
+  "1M": "past month",
+  "3M": "past 3 months",
+  "6M": "past 6 months",
+  "1Y": "past year",
+  All: "all time",
+}
+
+/**
+ * Weight change over the range: the latest entry minus the earliest entry
+ * inside the window. Null with fewer than two entries in the window.
+ */
+export function changeOver(
+  range: Range,
+  entries: Entry[],
+  today: number
+): number | null {
+  const points = toPoints(entries)
+  const latest = points.at(-1)
+  if (!latest) return null
+  const { start } = windowFor(range, points, today, null)
+  if (latest.day < start) return null
+  const baseline = points.find((p) => p.day >= start)
+  if (!baseline || baseline === latest) return null
+  return Math.round((latest.kg - baseline.kg) * 100) / 100
 }
 
 /** Projection from the latest entry toward the goal, cut off at the window's right edge. */

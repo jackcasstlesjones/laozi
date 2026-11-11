@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   buildChart,
+  changeOver,
   crossfadeTicks,
   ease,
   goalDay,
@@ -206,5 +207,18 @@ describe("nearestPoint", () => {
     expect(nearestPoint(pts, 3)?.kg).toBe(1)
     expect(nearestPoint(pts, 5)?.kg).toBe(2)
     expect(nearestPoint([], 5)).toBeNull()
+  })
+})
+
+describe("changeOver", () => {
+  it("is the latest entry minus the earliest entry inside the window", () => {
+    expect(changeOver("1M", entries, today)).toBeCloseTo(-0.8)
+    expect(changeOver("All", entries, today)).toBeCloseTo(-6.6)
+  })
+  it("is null with fewer than two entries in the window", () => {
+    expect(changeOver("1M", [], today)).toBeNull()
+    expect(changeOver("1W", entries.slice(1), today)).toBeCloseTo(-0.8)
+    expect(changeOver("1W", [entries[0], entries[2]], today)).toBeNull()
+    expect(changeOver("1W", entries.slice(0, 1), today)).toBeNull()
   })
 })
