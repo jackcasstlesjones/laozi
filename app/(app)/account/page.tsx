@@ -10,7 +10,7 @@ import {
 import { getSettings } from "@/lib/settings/queries"
 import { requireSession } from "@/lib/session"
 import { ChangePasswordForm, SignOutButton } from "./account-forms"
-import { CalorieLimitForm, GoalForm } from "./settings-forms"
+import { CalorieLimitForm, GoalForm, TabOrderForm } from "./settings-forms"
 
 export const metadata: Metadata = { title: "Settings · Laozi" }
 
@@ -24,6 +24,12 @@ const SECTIONS = [
     title: "Daily calorie limit",
     description: "Today's total on the Food tab is shown against it.",
     form: CalorieLimitForm,
+  },
+  {
+    title: "Tab order",
+    description:
+      "The order of the tabs in the header. The first one opens when you visit Laozi.",
+    form: TabOrderForm,
   },
 ] as const
 

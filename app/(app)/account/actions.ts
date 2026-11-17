@@ -6,7 +6,11 @@ import type { z } from "zod"
 import { db } from "@/db"
 import { goalSettings } from "@/db/schema"
 import { requireSession } from "@/lib/session"
-import { calorieLimitInput, goalInput } from "@/lib/settings/validation"
+import {
+  calorieLimitInput,
+  goalInput,
+  tabOrderInput,
+} from "@/lib/settings/validation"
 
 export type SettingsResult = { ok: true } | { ok: false; error: string }
 
@@ -31,4 +35,8 @@ export async function saveGoal(input: unknown) {
 
 export async function saveCalorieLimit(input: unknown) {
   return saveSettings(calorieLimitInput, input)
+}
+
+export async function saveTabOrder(input: unknown) {
+  return saveSettings(tabOrderInput, input)
 }

@@ -1,12 +1,19 @@
 "use client"
 
+import { ArrowDown, ArrowUp } from "lucide-react"
 import { useState, useTransition } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import type { Settings } from "@/lib/settings/queries"
-import { saveCalorieLimit, saveGoal, type SettingsResult } from "./actions"
+import { moveTab, TAB_LABELS, type TabId } from "@/lib/tabs"
+import {
+  saveCalorieLimit,
+  saveGoal,
+  saveTabOrder,
+  type SettingsResult,
+} from "./actions"
 
 /** Empty input → null (setting cleared). */
 const orNull = (v: FormDataEntryValue | null) =>
@@ -124,5 +131,48 @@ export function CalorieLimitForm({ settings }: { settings: Settings }) {
         Save limit
       </Button>
     </form>
+  )
+}
+
+export function TabOrderForm({ settings }: { settings: Settings }) {
+  const { status, pending, save } = useSave()
+  const [order, setOrder] = useState<TabId[]>(settings.tabOrder)
+  const move = (index: number, direction: -1 | 1) => {
+    const next = moveTab(order, index, direction)
+    setOrder(next)
+    save(() => saveTabOrder({ tabOrder: next }))
+  }
+  return (
+    <div className="flex flex-col gap-4">
+      <ol className="flex flex-col divide-y rounded-lg border">
+        {order.map((id, i) => (
+          <li key={id} className="flex items-center gap-2 py-1 pr-1 pl-3">
+            <span className="w-4 text-sm text-muted-foreground tabular-nums">
+              {i + 1}
+            </span>
+            <span className="flex-1 text-sm font-medium">{TAB_LABELS[id]}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Move ${TAB_LABELS[id]} up`}
+              disabled={pending || i === 0}
+              onClick={() => move(i, -1)}
+            >
+              <ArrowUp />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Move ${TAB_LABELS[id]} down`}
+              disabled={pending || i === order.length - 1}
+              onClick={() => move(i, 1)}
+            >
+              <ArrowDown />
+            </Button>
+          </li>
+        ))}
+      </ol>
+      <Status status={status} />
+    </div>
   )
 }
