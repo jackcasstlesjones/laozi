@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { calorieLimitInput, goalInput } from "./validation"
+import { calorieLimitInput, goalInput, tabOrderInput } from "./validation"
 
 describe("goalInput", () => {
   it("allows clearing the goal", () => {
@@ -38,4 +38,18 @@ describe("calorieLimitInput", () => {
         .message
     ).toBe(message)
   })
+})
+
+describe("tabOrderInput", () => {
+  it("accepts each tab once, in any order", () => {
+    expect(tabOrderInput.parse({ tabOrder: ["weight", "food"] })).toEqual({
+      tabOrder: ["weight", "food"],
+    })
+  })
+  it.each([[["food"]], [["food", "food"]], [["food", "weight", "x"]]])(
+    "rejects %j",
+    (tabOrder) => {
+      expect(tabOrderInput.safeParse({ tabOrder }).success).toBe(false)
+    }
+  )
 })

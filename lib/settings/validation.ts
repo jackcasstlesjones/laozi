@@ -2,6 +2,7 @@ import { createInsertSchema } from "drizzle-orm/zod"
 import { z } from "zod"
 
 import { goalSettings } from "@/db/schema"
+import { TAB_IDS } from "@/lib/tabs"
 import { kg } from "@/lib/weight/validation"
 
 const RATE_MESSAGE = "Enter a rate between 0.1 and 2 kg per week"
@@ -25,3 +26,11 @@ export const calorieLimitInput = createInsertSchema(goalSettings, {
       .max(10_000, LIMIT_MESSAGE)
       .nullable(),
 }).pick({ dailyKcalLimit: true })
+
+export const tabOrderInput = createInsertSchema(goalSettings, {
+  tabOrder: () =>
+    z
+      .array(z.enum(TAB_IDS))
+      .length(TAB_IDS.length)
+      .refine((ids) => new Set(ids).size === ids.length, "List each tab once"),
+}).pick({ tabOrder: true })

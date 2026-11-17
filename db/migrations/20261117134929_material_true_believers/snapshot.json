@@ -1,0 +1,76 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "6a27bf2b-bb3e-4138-98ec-9ee56304aa50",
+  "prevIds": [
+    "ebb1957e-94f7-41b3-b6e3-ba2b40a72014"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "goal_settings",
+        "tab_order"
+      ],
+      "writes": [
+        "s|col|public.goal_settings.tab_order",
+        "n|col|public.goal_settings.tab_order",
+        "e|col|public.goal_settings.tab_order"
+      ],
+      "reads": [
+        "n|tbl|public.goal_settings",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "goal_settings"
+      ],
+      "writes": [
+        "s|ck|public.goal_settings.goal_settings_tab_order",
+        "n|ck|public.goal_settings.goal_settings_tab_order",
+        "e|ck|public.goal_settings.goal_settings_tab_order",
+        "n|con|public.goal_settings.goal_settings_tab_order"
+      ],
+      "reads": [
+        "n|tbl|public.goal_settings",
+        "n|sch|public",
+        "n|col|public.goal_settings.tab_order"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "goal_settings",
+        "name": "tab_order",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 1,
+        "default": "'{food,weight}'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "goal_settings",
+        "name": "goal_settings_tab_order",
+        "value": "\"tab_order\" @> array['food', 'weight']::text[] and cardinality(\"tab_order\") = 2",
+        "entityType": "checks"
+      }
+    }
+  ]
+}

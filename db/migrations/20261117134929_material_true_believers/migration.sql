@@ -1,0 +1,2 @@
+ALTER TABLE "goal_settings" ADD COLUMN "tab_order" text[] DEFAULT '{food,weight}'::text[] NOT NULL;--> statement-breakpoint
+ALTER TABLE "goal_settings" ADD CONSTRAINT "goal_settings_tab_order" CHECK ("tab_order" @> array['food', 'weight']::text[] and cardinality("tab_order") = 2);

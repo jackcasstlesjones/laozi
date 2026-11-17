@@ -13,6 +13,8 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core"
 
+import { TAB_IDS } from "../lib/tabs"
+
 // ---------------------------------------------------------------------------
 // Better Auth core tables. TS keys must match Better Auth's field names.
 // ---------------------------------------------------------------------------
@@ -131,6 +133,11 @@ export const goalSettings = pgTable(
       .default(0.5),
     /** Daily calorie limit for the Food tab; null means no limit. */
     dailyKcalLimit: integer("daily_kcal_limit"),
+    /** Header tab order; the first tab is the landing page. */
+    tabOrder: text("tab_order")
+      .array()
+      .notNull()
+      .default([...TAB_IDS]),
     ...timestamps,
   },
   (t) => [
@@ -146,6 +153,10 @@ export const goalSettings = pgTable(
     check(
       "goal_settings_rate_range",
       sql`${t.rateKgPerWeek} > 0 and ${t.rateKgPerWeek} <= 2`
+    ),
+    check(
+      "goal_settings_tab_order",
+      sql`${t.tabOrder} @> array['food', 'weight']::text[] and cardinality(${t.tabOrder}) = 2`
     ),
   ]
 )

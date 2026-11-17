@@ -51,6 +51,18 @@ describe("goal_settings constraints", () => {
       ctx.db.update(goalSettings).set({ dailyKcalLimit: 10001 })
     ).rejects.toThrow()
   })
+  it("holds each tab exactly once in tab_order", async () => {
+    await ctx.db.update(goalSettings).set({ tabOrder: ["weight", "food"] })
+    for (const tabOrder of [
+      ["food"],
+      ["food", "food"],
+      ["food", "weight", "x"],
+    ])
+      await expect(
+        ctx.db.update(goalSettings).set({ tabOrder })
+      ).rejects.toThrow()
+    await ctx.db.update(goalSettings).set({ tabOrder: ["food", "weight"] })
+  })
   it("defaults the rate to 0.5 kg/week", async () => {
     const [row] = await ctx.db.select().from(goalSettings)
     expect(row.rateKgPerWeek).toBe(0.5)
