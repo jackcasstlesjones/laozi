@@ -4,7 +4,7 @@ Laozi is a personal replacement for the two Lose It features Jack actually uses:
 
 ## Navigation
 
-Two tabs: **Food** and **Weight**. Food is the landing page. Account settings are reached from the header.
+Two tabs: **Food** and **Weight**, in the order set on the Settings page (Food first by default). The first tab is the landing page: `/`, the header logo, logging in and the not-found page all go to it. Account settings are reached from the header.
 
 ## Weight tab
 
@@ -121,7 +121,7 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 - Single user. Log in with email and password. There is no sign-up page: the one account is created at deploy time.
 - Wrong email or password shows "Incorrect email or password". It doesn't reveal which one was wrong.
 - There is no forgot-password or reset-by-email flow.
-- The Settings page (`/account`, from the header) has: **Goal** (see Goal settings), **Daily calorie limit** (whole kcal, 500–10,000; empty for none), and **Change password** (current password, new password with a minimum of 12 characters, confirm new password). Changing the password logs out every other session.
+- The Settings page (`/account`, from the header) has: **Goal** (see Goal settings), **Daily calorie limit** (whole kcal, 500–10,000; empty for none), **Tab order** (each tab with up/down buttons; a move saves straight away), and **Change password** (current password, new password with a minimum of 12 characters, confirm new password). Changing the password logs out every other session.
 - Sessions last 30 days.
 
 ## Non-goals (v1)
@@ -134,7 +134,7 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 - `/` → redirects to `/food`.
 - `/weight` — chart + entries list (side by side on wide screens). Record button above them on wide screens; full width between the chart and the list when stacked. Export at the top right of the entries card.
 - `/food` — weight trend, Today card, searchable, sortable recipe list with +/− counters. `/food/[slug]` — recipe detail. `/food/today` — today's items (the mobile bar opens it). `/food/history` — past days.
-- `/account` — Settings (from the header): goal, daily calorie limit, change password.
+- `/account` — Settings (from the header): goal, daily calorie limit, tab order, change password.
 - `/api/auth/*` — Better Auth. `/api/health` — DB ping.
 
 ## Design system
@@ -148,7 +148,7 @@ Two tabs: **Food** and **Weight**. Food is the landing page. Account settings ar
 
 - **Stack:** Next.js 16.4 (App Router, Turbopack, no Cache Components), React 19.3, TypeScript strict, pnpm. Postgres 17 (Docker locally, Neon in production) via Drizzle ORM **1.0.0-rc.5 (pinned)** + `pg`. Zod 4 with `drizzle-orm/zod`. Better Auth 1.7. Vitest.
 - **Layout (no `src/`):** `app/` routes; `components/` (`ui/` = shadcn); `lib/` (env, auth, domain logic); `db/` (schema, relations, client, migrations); `scripts/` (seed, gates, import); `tests/` helpers.
-- **Data model:** `weigh_in(id, date unique, weight_kg numeric(4,1) check 30–300)`; `goal_settings` singleton (`id = 1`, `goal_kg` nullable, `rate_kg_per_week` default 0.5, `daily_kcal_limit` nullable 500–10,000); `food_log(id, date, recipe_slug nullable, name, kcal per serving, quantity ≥ 1)`, unique on `(date, recipe_slug)` for recipe rows; Better Auth `user`, `session`, `account`, `verification`, `rate_limit`.
+- **Data model:** `weigh_in(id, date unique, weight_kg numeric(4,1) check 30–300)`; `goal_settings` singleton (`id = 1`, `goal_kg` nullable, `rate_kg_per_week` default 0.5, `daily_kcal_limit` nullable 500–10,000, `tab_order text[]` default `{food,weight}`, each tab exactly once); `food_log(id, date, recipe_slug nullable, name, kcal per serving, quantity ≥ 1)`, unique on `(date, recipe_slug)` for recipe rows; Better Auth `user`, `session`, `account`, `verification`, `rate_limit`.
 - **Auth:** Better Auth email/password, sign-up disabled, min password 12, 30-day database sessions, database rate limiting. The account is created by the seed from `ADMIN_EMAIL`/`ADMIN_PASSWORD` only if it doesn't exist.
 - **Recipes:** fetched server-side from GitHub (contents API listing + raw downloads), cached with a 300 s revalidate; validated per file with Zod.
 - **Env vars:** `DATABASE_URL` (pooled), `DATABASE_URL_UNPOOLED` (migrations/seed), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (production only), `ADMIN_EMAIL`, `ADMIN_PASSWORD`; locally also `TEST_DATABASE_URL`.

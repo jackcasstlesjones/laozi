@@ -33,7 +33,7 @@ export function LoginForm() {
       )
       return
     }
-    router.replace("/food")
+    router.replace("/")
     router.refresh()
   }
 

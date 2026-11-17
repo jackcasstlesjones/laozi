@@ -5,6 +5,7 @@ import Link from "next/link"
 import { TimeZoneCookie } from "@/components/time-zone-cookie"
 import { buttonVariants } from "@/components/ui/button"
 import { TZ_COOKIE } from "@/lib/food/today"
+import { getSettings } from "@/lib/settings/queries"
 import { requireSession } from "@/lib/session"
 import { NavTabs } from "./nav-tabs"
 
@@ -14,6 +15,7 @@ export default async function AppLayout({
   children: React.ReactNode
 }) {
   await requireSession()
+  const { tabOrder } = await getSettings()
   const tz = (await cookies()).get(TZ_COOKIE)?.value
   return (
     <div className="min-h-svh">
@@ -21,12 +23,12 @@ export default async function AppLayout({
       <header className="sticky top-0 z-10 border-b bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4">
           <Link
-            href="/food"
+            href="/"
             className="font-heading text-lg font-semibold tracking-tight"
           >
             Laozi
           </Link>
-          <NavTabs />
+          <NavTabs order={tabOrder} />
           <Link
             href="/account"
             aria-label="Account settings"
