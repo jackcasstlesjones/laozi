@@ -111,7 +111,7 @@ export function RecipeList({
             {shown.map((r) => (
               <li
                 key={r.slug}
-                className="flex items-center gap-4 py-3 pr-3 pl-4"
+                className="flex items-center gap-3 py-3 pr-3 pl-4"
               >
                 <div className="min-w-0 flex-1">
                   <Link
@@ -125,6 +125,9 @@ export function RecipeList({
                       {r.variant} only
                     </span>
                   )}
+                  <span className="block text-xs text-muted-foreground">
+                    per {r.serving}
+                  </span>
                   {showMacros && (
                     <Macros
                       macros={r.macros}
@@ -132,13 +135,8 @@ export function RecipeList({
                     />
                   )}
                 </div>
-                <div className="max-w-32 shrink-0 text-right">
-                  <div className="font-semibold whitespace-nowrap tabular-nums">
-                    {r.kcal} kcal
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    per {r.serving}
-                  </div>
+                <div className="shrink-0 font-semibold whitespace-nowrap tabular-nums">
+                  {r.kcal} kcal
                 </div>
                 <Counter
                   count={counts[r.slug] ?? 0}
