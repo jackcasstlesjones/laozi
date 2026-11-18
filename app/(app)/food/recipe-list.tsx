@@ -116,12 +116,12 @@ export function RecipeList({
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/food/${r.slug}`}
-                    className="inline-block max-w-full truncate pb-0.5 align-top font-medium underline decoration-muted-foreground underline-offset-2 hover:decoration-foreground"
+                    className="font-medium break-words underline decoration-muted-foreground underline-offset-2 hover:decoration-foreground"
                   >
                     {r.name}
                   </Link>
                   {r.variant && r.variant !== variant && (
-                    <span className="ml-2 text-xs text-muted-foreground">
+                    <span className="ml-2 text-xs whitespace-nowrap text-muted-foreground">
                       {r.variant} only
                     </span>
                   )}
@@ -132,8 +132,8 @@ export function RecipeList({
                     />
                   )}
                 </div>
-                <div className="text-right whitespace-nowrap">
-                  <div className="font-semibold tabular-nums">
+                <div className="max-w-32 shrink-0 text-right">
+                  <div className="font-semibold whitespace-nowrap tabular-nums">
                     {r.kcal} kcal
                   </div>
                   <div className="text-xs text-muted-foreground">
