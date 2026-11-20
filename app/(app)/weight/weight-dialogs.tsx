@@ -26,7 +26,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { formatEntryDate } from "@/lib/weight/dates"
+import type { CustomRange } from "@/lib/weight/chart"
+import { formatEntryDate, fromDay, toDay } from "@/lib/weight/dates"
 import { buildExportMarkdown } from "@/lib/weight/export"
 import { formatKg } from "@/lib/weight/kg"
 import type { Settings } from "@/lib/settings/queries"
@@ -157,6 +158,78 @@ export function WeighInDialog({
         </AlertDialogContent>
       </AlertDialog>
     </>
+  )
+}
+
+export function RangeDialog({
+  initial,
+  today,
+  onApply,
+  onClose,
+}: {
+  initial: CustomRange
+  today: string
+  onApply: (range: CustomRange) => void
+  onClose: () => void
+}) {
+  const [from, setFrom] = useState(fromDay(initial.start))
+  const [to, setTo] = useState(fromDay(initial.end))
+  const [error, setError] = useState<string | null>(null)
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (to > today)
+              return setError("The end date can't be in the future")
+            if (from >= to)
+              return setError("The start date must be before the end date")
+            onApply({ start: toDay(from), end: toDay(to) })
+          }}
+          className="flex flex-col gap-4"
+        >
+          <DialogHeader>
+            <DialogTitle>Custom range</DialogTitle>
+            <DialogDescription>
+              Show the chart between two dates.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex min-w-0 flex-col gap-2">
+              <Label htmlFor="range-from">From</Label>
+              <Input
+                id="range-from"
+                type="date"
+                value={from}
+                max={today}
+                required
+                onChange={(e) => setFrom(e.target.value)}
+              />
+            </div>
+            <div className="flex min-w-0 flex-col gap-2">
+              <Label htmlFor="range-to">To</Label>
+              <Input
+                id="range-to"
+                type="date"
+                value={to}
+                max={today}
+                required
+                onChange={(e) => setTo(e.target.value)}
+              />
+            </div>
+          </div>
+          <FormError message={error} />
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit">Apply</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

@@ -1,6 +1,13 @@
 "use client"
 
-import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from "lucide-react"
+import {
+  ArrowDown,
+  ArrowUp,
+  CalendarRange,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react"
 import { useMemo, useState, useSyncExternalStore } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -10,15 +17,23 @@ import { cn } from "@/lib/utils"
 import {
   changeOver,
   DEFAULT_RANGE,
-  RANGE_LABELS,
+  isCustom,
+  rangeLabel,
   RANGES,
+  toPoints,
+  windowFor,
   type Range,
 } from "@/lib/weight/chart"
 import { formatEntryDate, localToday, toDay } from "@/lib/weight/dates"
 import { formatKg } from "@/lib/weight/kg"
 import type { Settings } from "@/lib/settings/queries"
 import type { WeighInRow } from "@/lib/weight/queries"
-import { DeleteDialog, ExportDialog, WeighInDialog } from "./weight-dialogs"
+import {
+  DeleteDialog,
+  ExportDialog,
+  RangeDialog,
+  WeighInDialog,
+} from "./weight-dialogs"
 import { WeightChart } from "./weight-chart"
 
 /** The device's calendar date; the server's UTC date during SSR. */
@@ -29,6 +44,8 @@ function useToday() {
     () => new Date().toISOString().slice(0, 10)
   )
 }
+
+const CUSTOM = "Custom"
 
 type Editing = { mode: "new" } | { mode: "edit"; entry: WeighInRow } | null
 
@@ -43,6 +60,7 @@ export function WeightView({
   const [range, setRange] = useState<Range>(DEFAULT_RANGE)
   const [editing, setEditing] = useState<Editing>(null)
   const [deleting, setDeleting] = useState<WeighInRow | null>(null)
+  const [pickingRange, setPickingRange] = useState(false)
 
   const chartGoal = useMemo(
     () =>
@@ -72,8 +90,10 @@ export function WeightView({
         <div className="flex flex-col gap-4">
           {entries.length > 0 && (
             <ToggleGroup
-              value={[range]}
-              onValueChange={(v) => v[0] && setRange(v[0] as Range)}
+              value={[isCustom(range) ? CUSTOM : range]}
+              onValueChange={(v) =>
+                v[0] && v[0] !== CUSTOM && setRange(v[0] as Range)
+              }
               size="sm"
               variant="outline"
               spacing={0}
@@ -85,6 +105,14 @@ export function WeightView({
                   {r}
                 </ToggleGroupItem>
               ))}
+              <ToggleGroupItem
+                value={CUSTOM}
+                aria-label="Custom range"
+                className="flex-1 px-2.5"
+                onClick={() => setPickingRange(true)}
+              >
+                <CalendarRange />
+              </ToggleGroupItem>
             </ToggleGroup>
           )}
           <Card>
@@ -103,7 +131,7 @@ export function WeightView({
                       : `${formatKg(Math.abs(change))} kg`}
                   </span>
                   <span className="text-muted-foreground">
-                    {RANGE_LABELS[range]}
+                    {rangeLabel(range)}
                   </span>
                 </p>
               )}
@@ -182,7 +210,24 @@ export function WeightView({
           onClose={() => setEditing(null)}
         />
       )}
+      {pickingRange && (
+        <RangeDialog
+          initial={currentWindow(range, entries, today)}
+          today={today}
+          onApply={(r) => {
+            setRange(r)
+            setPickingRange(false)
+          }}
+          onClose={() => setPickingRange(false)}
+        />
+      )}
       <DeleteDialog entry={deleting} onClose={() => setDeleting(null)} />
     </div>
   )
+}
+
+/** The window on screen, clipped to today, to start the custom picker from. */
+function currentWindow(range: Range, entries: WeighInRow[], today: string) {
+  const { start, end } = windowFor(range, toPoints(entries), toDay(today), null)
+  return { start, end: Math.min(end, toDay(today)) }
 }
