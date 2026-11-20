@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   addMonths,
+  formatDateRange,
   formatEntryDate,
   formatMonth,
   fromDay,
@@ -28,5 +29,16 @@ describe("dates", () => {
   it("formats month labels", () => {
     expect(formatMonth(toDay("2026-06-01"), false)).toBe("Jun")
     expect(formatMonth(toDay("2025-06-01"), true)).toBe("Jun '25")
+  })
+})
+
+describe("formatDateRange", () => {
+  it("names the year once within a year, twice across years", () => {
+    expect(formatDateRange(toDay("2026-10-01"), toDay("2026-11-20"))).toBe(
+      "Oct 1 – Nov 20, 2026"
+    )
+    expect(formatDateRange(toDay("2025-12-01"), toDay("2026-01-05"))).toBe(
+      "Dec 1, 2025 – Jan 5, 2026"
+    )
   })
 })

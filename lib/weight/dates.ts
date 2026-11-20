@@ -34,6 +34,7 @@ const entryFmt = fmt({
 })
 const shortFmt = fmt({ month: "short", day: "numeric" })
 const monthFmt = fmt({ month: "short" })
+const longFmt = fmt({ month: "short", day: "numeric", year: "numeric" })
 
 /** "Tue, Nov 3, 2026" */
 export function formatEntryDate(iso: string): string {
@@ -50,4 +51,15 @@ export function formatMonth(day: number, withYear: boolean): string {
   const d = new Date(day * MS_PER_DAY)
   const m = monthFmt.format(d)
   return withYear ? `${m} '${String(d.getUTCFullYear()).slice(2)}` : m
+}
+
+/** "Oct 1 – Nov 20, 2026", or "Dec 1, 2025 – Jan 5, 2026" across years. */
+export function formatDateRange(start: number, end: number): string {
+  const a = new Date(start * MS_PER_DAY)
+  const b = new Date(end * MS_PER_DAY)
+  const first =
+    a.getUTCFullYear() === b.getUTCFullYear()
+      ? shortFmt.format(a)
+      : longFmt.format(a)
+  return `${first} – ${longFmt.format(b)}`
 }

@@ -2,13 +2,25 @@
  * Pure chart engine for the weight chart (docs/SPEC.md → Chart).
  * Works in whole days since the epoch on the x-axis and kg on the y-axis.
  */
-import { addMonths, formatMonth, formatShortDate, toDay } from "./dates"
+import {
+  addMonths,
+  formatDateRange,
+  formatMonth,
+  formatShortDate,
+  toDay,
+} from "./dates"
 
 export const RANGES = ["1W", "1M", "3M", "6M", "1Y", "All"] as const
 /** Not offered in the selector: the compact chart on the Food tab always shows this. */
 export const TREND_RANGE = "2W"
-export type Range = (typeof RANGES)[number] | typeof TREND_RANGE
+export type PresetRange = (typeof RANGES)[number] | typeof TREND_RANGE
+/** A window the user picked: first and last day, both included. */
+export type CustomRange = { start: number; end: number }
+export type Range = PresetRange | CustomRange
 export const DEFAULT_RANGE: Range = "1M"
+
+export const isCustom = (range: Range): range is CustomRange =>
+  typeof range === "object"
 
 export type Entry = { date: string; weightKg: number }
 export type Goal = { goalKg: number; rateKgPerWeek: number }
@@ -59,6 +71,8 @@ export function windowFor(
   today: number,
   goal: Goal | null
 ): { start: number; end: number } {
+  if (isCustom(range)) return { start: range.start, end: range.end }
+
   const latest = points.at(-1)
   const reach = latest ? goalDay(latest, goal) : null
 
@@ -85,7 +99,7 @@ export function windowFor(
   return { start, end: today + future }
 }
 
-export const RANGE_LABELS: Record<Range, string> = {
+export const RANGE_LABELS: Record<PresetRange, string> = {
   "1W": "past week",
   "2W": "past 2 weeks",
   "1M": "past month",
@@ -93,6 +107,12 @@ export const RANGE_LABELS: Record<Range, string> = {
   "6M": "past 6 months",
   "1Y": "past year",
   All: "all time",
+}
+
+export function rangeLabel(range: Range): string {
+  return isCustom(range)
+    ? formatDateRange(range.start, range.end)
+    : RANGE_LABELS[range]
 }
 
 /**
@@ -105,13 +125,10 @@ export function changeOver(
   today: number
 ): number | null {
   const points = toPoints(entries)
-  const latest = points.at(-1)
-  if (!latest) return null
-  const { start } = windowFor(range, points, today, null)
-  if (latest.day < start) return null
-  const baseline = points.find((p) => p.day >= start)
-  if (!baseline || baseline === latest) return null
-  return Math.round((latest.kg - baseline.kg) * 100) / 100
+  const { start, end } = windowFor(range, points, today, null)
+  const inside = points.filter((p) => p.day >= start && p.day <= end)
+  if (inside.length < 2) return null
+  return Math.round((inside.at(-1)!.kg - inside[0].kg) * 100) / 100
 }
 
 /** Projection from the latest entry toward the goal, cut off at the window's right edge. */

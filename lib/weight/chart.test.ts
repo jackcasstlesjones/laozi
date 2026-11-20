@@ -9,6 +9,7 @@ import {
   lerpView,
   nearestPoint,
   projectionLine,
+  rangeLabel,
   sameView,
   windowFor,
   xTicks,
@@ -220,5 +221,27 @@ describe("changeOver", () => {
     expect(changeOver("1W", entries.slice(1), today)).toBeCloseTo(-0.8)
     expect(changeOver("1W", [entries[0], entries[2]], today)).toBeNull()
     expect(changeOver("1W", entries.slice(0, 1), today)).toBeNull()
+  })
+  it("uses only entries inside a custom window", () => {
+    const window = { start: toDay("2026-01-01"), end: toDay("2026-10-31") }
+    expect(changeOver(window, entries, today)).toBeCloseTo(-5.8)
+  })
+})
+
+describe("custom range", () => {
+  const window = { start: toDay("2026-01-01"), end: toDay("2026-10-31") }
+  it("is the window as picked, with no room for the projection", () => {
+    expect(windowFor(window, [], today, goal)).toEqual(window)
+  })
+  it("shows only entries inside it", () => {
+    const m = buildChart(entries, goal, window, today)
+    expect(m.visible.map((p) => fromDay(p.day))).toEqual([
+      "2026-01-05",
+      "2026-10-27",
+    ])
+  })
+  it("is labelled with its dates", () => {
+    expect(rangeLabel(window)).toBe("Jan 1 – Oct 31, 2026")
+    expect(rangeLabel("3M")).toBe("past 3 months")
   })
 })
